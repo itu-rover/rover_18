@@ -33,8 +33,8 @@ def letsSerial():
 
             serialString1 = '/dev/ttyUSB' + str(serString1)
             print(serialString1)
-            ser = serial.Serial(port=serialString1, baudrate=9600, parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)  # open serial
-            ser.timeout = 3
+            ser = serial.Serial(port=serialString1, baudrate=115200, parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)  # open serial
+            ser.timeout = 1
 
             serString2 = raw_input("Enter Second  Port: ")
 
@@ -59,11 +59,12 @@ def letsSerial():
                 serialString2 = '/dev/ttyUSB' + str(serString2)
                 print(serialString2)
                 ser2 = serial.Serial(port=serialString2, baudrate=9600, parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS)  # open serial
-                ser2.timeout = 3
+                ser2.timeout = 1
+
 
                 while ser.isOpen() and ser2.isOpen():
                     if printOnce == True:
-                        print(namespace + "serial and serial 2 is open")
+                        print(namespace + "serial1  and serial 2 is open")
                         printOnce = False
 
                     receive = ser.readline()
