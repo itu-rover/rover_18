@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+
+ <include file="$(find rover_description)/launch/display.launch"/>
+  
+  <include file="$(find husky_control)/launch/control.launch"/>
+    <!--<include file="$(find rover_description)/launch/gazebo.launch"/>-->
+
+  <node name="rover" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false" />
+  </node>
+  
+
+<node name="rover_garen2_control" pkg="rover_control" type="rover_garen2_control.py"/>
+<node name="rover_cmd_sub" pkg="rover_send_point" type="rover_cmd_sub.py"/>
+
+   
+
+
+ <!-- <include file="$(find rover_navigation)/launch/rover_scan.launch"/>-->
+
+  <!-- include file="$(find depthimage_to_laserscan)/test/rostest/rover_scan.launch"/-->
+  <!-- node name="rover_imu" pkg="rover_control" type="imu_publisher.py" /-->
+
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find rover_base)/rviz/rover.rviz" /-->
+
+</launch>

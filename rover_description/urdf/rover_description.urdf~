@@ -1,0 +1,467 @@
+<?xml version="1.0"?>
+<robot
+  name="rover_description">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.167915742250863 -0.00938144904480165 0.0624306639563025"
+        rpy="0 0 0" />
+      <mass
+        value="3.87801725916137" />
+      <inertia
+        ixx="0.0811182033282846"
+        ixy="-0.00358580720829277"
+        ixz="0.0047898322925803"
+        iyy="0.283071990951495"
+        iyz="-0.000580133628337215"
+        izz="0.340422119687878" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/base_link.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="front_left">
+    <inertial>
+      <origin
+        xyz="0.162886988779887 -0.215918147278518 -0.11651747084858"
+        rpy="0 0 0" />
+      <mass
+        value="2.26275358584564" />
+      <inertia
+        ixx="0.0370475635427153"
+        ixy="0.0149342025682205"
+        ixz="0.0109400975211723"
+        iyy="0.0298431001565816"
+        iyz="-0.014956189740743"
+        izz="0.0381374574177658" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/front_left.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/front_left.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="front_left_joint"
+    type="fixed">
+    <origin
+      xyz="0.103 0.18087 0.0765"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="front_left" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="back_left">
+    <inertial>
+      <origin
+        xyz="-0.162981754145838 -0.164904981821672 -0.0414398630181014"
+        rpy="0 0 0" />
+      <mass
+        value="2.2627535858659" />
+      <inertia
+        ixx="0.0375355897014673"
+        ixy="-0.018315212620332"
+        ixz="-0.0035271645798929"
+        iyy="0.0198064136818086"
+        iyz="-0.00637221235572938"
+        izz="0.048666783620615" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/back_left.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/back_left.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="back_left_joint"
+    type="fixed">
+    <origin
+      xyz="-0.399 0.192 -0.0085"
+      rpy="2.0493 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="back_left" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="back_right">
+    <inertial>
+      <origin
+        xyz="-0.162981772699674 -0.231992125957204 0.00748839668721479"
+        rpy="0 0 0" />
+      <mass
+        value="2.26275358586881" />
+      <inertia
+        ixx="0.0376119867047362"
+        ixy="-0.0183400956398054"
+        ixz="0.00351048610673877"
+        iyy="0.0197933283695233"
+        iyz="0.00635437758399683"
+        izz="0.0487562770805659" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/back_right.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/back_right.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="back_right_joint"
+    type="fixed">
+    <origin
+      xyz="-0.399 -0.191 0.0665"
+      rpy="1.0854 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="back_right" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="mid_right">
+    <inertial>
+      <origin
+        xyz="-0.0649971156595212 0.229693834659478 -0.0155335691747258"
+        rpy="0 0 0" />
+      <mass
+        value="2.13425372049233" />
+      <inertia
+        ixx="0.0361755405494511"
+        ixy="-5.03375098942726E-06"
+        ixz="2.68328418158515E-06"
+        iyy="0.006938041446141"
+        iyz="0.00682006400202464"
+        izz="0.0341369303319802" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/mid_right.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/mid_right.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mid_right_joint"
+    type="fixed">
+    <origin
+      xyz="-0.083 -0.191 0.0665"
+      rpy="-1.9102 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="mid_right" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="front_right">
+    <inertial>
+      <origin
+        xyz="-0.163057654672996 -0.232048924021065 -0.00711767878082914"
+        rpy="0 0 0" />
+      <mass
+        value="2.2627535858721" />
+      <inertia
+        ixx="0.0377008253361543"
+        ixy="-0.018390387285993"
+        ixz="-0.0034962884949824"
+        iyy="0.0198001303441898"
+        iyz="-0.0063312239246662"
+        izz="0.0488843492402936" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/front_right.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/front_right.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="front_right_joint"
+    type="fixed">
+    <origin
+      xyz="0.103 -0.191 0.0665"
+      rpy="2.0644 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="front_right" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="antenna">
+    <inertial>
+      <origin
+        xyz="0.0266465093411985 -0.439522553116282 -0.00892368045649072"
+        rpy="0 0 0" />
+      <mass
+        value="0.841200000000004" />
+      <inertia
+        ixx="0.0514324532726106"
+        ixy="-1.14660429812846E-17"
+        ixz="-2.03611622193766E-17"
+        iyy="0.00593412590028532"
+        iyz="0.000250698864479315"
+        izz="0.0572766473723253" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/antenna.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/antenna.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="antenna_joint"
+    type="fixed">
+    <origin
+      xyz="-0.508 0.031147 0.018226"
+      rpy="-1.5708 -6.123E-17 -1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="antenna" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="camera">
+    <inertial>
+      <origin
+        xyz="-0.0367218445696466 0.182133887938988 -1.0639015501912E-09"
+        rpy="0 0 0" />
+      <mass
+      <inertia
+        ixx="0.00179590769076528"
+        ixy="-6.5203901668227E-11"
+        ixz="-1.76867999108529E-11"
+        iyy="4.73181891509168E-05"
+        iyz="1.34363641690349E-11"
+        izz="0.00182305206851972" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/camera.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/camera.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="camera_joint"
+    type="fixed">
+    <origin
+      xyz="0.242 0.182 0.14822"
+      rpy="0 -1.5708 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="camera" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="mid_left">
+    <inertial>
+      <origin
+        xyz="-0.0650755400521924 0.228364718768154 0.009094867760298"
+        rpy="0 0 0" />
+      <mass
+        value="2.07603410965556" />
+      <inertia
+        ixx="0.0370912529767464"
+        ixy="1.52950147458274E-05"
+        ixz="3.94456235950462E-06"
+        iyy="0.00665169124905468"
+        iyz="-0.00652533818881066"
+        izz="0.0353317185753018" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/mid_left.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://rover_description/meshes/mid_left.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mid_left_joint"
+    type="fixed">
+    <origin
+      xyz="-0.083 0.191 0.0665"
+      rpy="-1.0923 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="mid_left" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

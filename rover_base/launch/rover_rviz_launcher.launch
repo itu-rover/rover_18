@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+  <arg
+    name="model" />
+  <arg
+    name="gui"
+    default="False" />
+  <param
+    name="robot_description"
+    textfile="$(find rover_description)/robots/rover_description.urdf" />
+  <param
+    name="use_gui"
+    value="$(arg gui)" />
+  <include file="$(find husky_control)/launch/control.launch"/>
+    <node
+    name="rviz"
+    pkg="rviz"
+    type="rviz"
+    args="-d $(find rover_base)/rviz/rover_sim.rviz" />
+
+</launch>
