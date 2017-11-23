@@ -55,6 +55,7 @@ def letsSerial():
                     time.sleep(0.05)
                 rospy.spin()
 
+
             else:
                 serialString2 = '/dev/ttyUSB' + str(serString2)
                 print(serialString2)
@@ -71,8 +72,7 @@ def letsSerial():
                     receive2 = ser2.readline()
                     sensor_pub.publish(receive)
                     sensor_pub2.publish(receive2)
-                    print(namespace + "I'm reading this from serial : " + str(
-                        receive) + "   I'm writing to serial :  " + serialMsg + "\n")
+                    print(namespace + "I'm reading this from serial : " + str(receive) + "   I'm writing to serial :  " + serialMsg + "\n")
                     print(namespace + "I'm reading this from serial : " + str(receive2) + "\n")
 
                     ser.flushInput()
@@ -80,7 +80,7 @@ def letsSerial():
                     ser2.flushInput()
                     ser2.flushOutput()
 
-                    time.sleep(0.4)
+                    time.sleep(0.05)
                 rospy.spin()
 
 
