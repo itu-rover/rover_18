@@ -30,7 +30,7 @@ class Localization(object):
 
         self.current_time =  rospy.Time.now()
         self.last_time =  rospy.Time.now()
-        
+    
         self.odom_pub = rospy.Publisher('/husky_velocity_controller/odom', Odometry, queue_size = 50)
         self.odom_broadcaster = tf.TransformBroadcaster()
         self.twist = Twist()

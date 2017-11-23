@@ -1,0 +1,4 @@
+init_rover = simulasyonda roveri başlatır. ekf ile beraber.
+init_roverreal = imu datasını kullanarak simulasyonu açar.ekf yok
+rover_sim = parametre girilmiş rviz.
+init_roverserial = serial haberleşmeleri başlatır.
