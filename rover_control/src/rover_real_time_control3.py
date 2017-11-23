@@ -48,7 +48,6 @@ class Localization(object):
 
         
         
-        
 
     def callback(self,data):
 
@@ -62,14 +61,17 @@ class Localization(object):
         while not rospy.is_shutdown():
             self.current_time = rospy.Time.now()
             self.dt = (self.current_time - self.last_time).to_sec()
+            
+            #if(self.rover_accx>0):
+              #  if (self.rover_accx<1):
+               #     self.rover_accx=0
+            #if(self.rover_accx<0):
+              #  if (self.rover_accx>-1):
+               #     self.rover_accx=0        
 
-            self.sim_accx=self.twist.linear.x/self.dt
-
-            if(self.twist.linear.x !=0 or  (self.sim_accx-0.1)<self.rover_accx<(self.sim_accx+0.1)):
-                self.vx =self.rover_accx*self.dt 
-            else:
-                self.vx=self.twist.linear.x 
-
+            self.vx =self.rover_accx*self.dt*10
+            
+          
 
             #  lineer x hızına çevirildi
             self.vy = self.twist.linear.y #simulasyondan alındı
@@ -77,12 +79,7 @@ class Localization(object):
 
             self.th = self.yaw
 
-            if(self.th>0 and self.twist.angular.z !=0):
-               self.vth = self.th/self.dt  # hız = yol/zaman
-            elif(self.th<0 and self.twist.angular.z !=0):
-               self.vth = - self.th/self.dt
-            else:
-                self.vth=self.twist.angular.z 
+            self.vth=self.twist.angular.z 
        
 
             self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
@@ -92,7 +89,8 @@ class Localization(object):
             self.x += self.delta_x
             self.y += self.delta_y
    
-            
+            print("vx:"+str(self.vx)+","+"y:"+str(self.x)+","+"dx:"+str(self.delta_x)+"dt:"+str(self.dt))
+               
             self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.th)
              
             self.odom_broadcaster.sendTransform((self.x, self.y, 0.0),self.odom_quat,self.current_time,"base_link","odom")
