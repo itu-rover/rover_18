@@ -33,8 +33,8 @@ def main():
     vth=0
     imuMsg = Imu()
     imuMsg.orientation_covariance = [0 , 0 , 0, 0, 0, 0, 0, 0, 0]
-    imuMsg.angular_velocity_covariance = [0, 0 , 0, 0 , 0, 0, 0 , 0 , 0]
-    imuMsg.linear_acceleration_covariance = [0 , 0 , 0, 0 , 0, 0, 0 , 0 , 0]
+    imuMsg.angular_velocity_covariance = [0, 0 , 0, 0 , 0, 0, 0 , 0 ,2]
+    imuMsg.linear_acceleration_covariance = [0.5 , 0 , 0, 0 , 0, 0, 0 , 0 , 0]
     current_time =  rospy.Time.now()
     last_time =  rospy.Time.now()
     print("Sleeping 1 second")
@@ -73,7 +73,7 @@ def main():
         
         imuMsg.header.stamp= rospy.Time.now()
         imuMsg.header.frame_id = 'base_link'
-        rospy.loginfo(imuMsg)
+        #rospy.loginfo(imuMsg)
         pub.publish(imuMsg)
         yaw_old=yaw
         last_time =  rospy.Time.now()

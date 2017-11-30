@@ -30,7 +30,7 @@ class Localization(object):
         self.rover_accx=0.0
         self.yaw=0.0
 
-
+  
         self.current_time =  rospy.Time.now()
         self.last_time =  rospy.Time.now()
         
@@ -56,26 +56,25 @@ class Localization(object):
         self.twist.angular.z = data.angular.z
 
     def controller(self):
-        rate = rospy.Rate(10) #10 Hz
+        rate = rospy.Rate(5) #10 Hz
 
         while not rospy.is_shutdown():
             self.current_time = rospy.Time.now()
             self.dt = (self.current_time - self.last_time).to_sec()
+                    
             
-            #if(self.rover_accx>0):
-              #  if (self.rover_accx<1):
-               #     self.rover_accx=0
-            #if(self.rover_accx<0):
-              #  if (self.rover_accx>-1):
-               #     self.rover_accx=0        
+            if(self.rover_accx>0 and self.rover_accx<0.44): #belirli bir ivmeden sonrası 0 kabul edildi
+                self.rover_accx=0
+            if(self.rover_accx<0 and self.rover_accx>-0.44): #belirli bir ivmeden sonrası 0 kabul edildi
+                self.rover_accx=0
 
-            self.vx =self.rover_accx*self.dt*10
-            
-          
+            if(self.twist.linear.x != 0):
+                self.vx=(self.rover_accx)*self.dt
+            else:
+                self.vx=0
 
-            #  lineer x hızına çevirildi
-            self.vy = self.twist.linear.y #simulasyondan alındı
            
+            self.vy = self.twist.linear.y 
 
             self.th = self.yaw
 
@@ -89,7 +88,7 @@ class Localization(object):
             self.x += self.delta_x
             self.y += self.delta_y
    
-            print("vx:"+str(self.vx)+","+"y:"+str(self.x)+","+"dx:"+str(self.delta_x)+"dt:"+str(self.dt))
+            #print("vx:"+str(self.vx)+","+"x:"+str(self.x)+","+"dx:"+str(self.delta_x)+"dt:"+str(self.dt))
                
             self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.th)
              
@@ -114,6 +113,8 @@ class Localization(object):
             rospy.Subscriber('/rover_serial_imu',String, self.callback_sensor)
             # Publisher(s)
             self.odom_pub.publish(self.odom) 
+
+            #print(str(self.yaw_min)+ "k:"+str(self.yaw_now)+"e"+str(self.yaw_max))
             rate.sleep()
 
             
