@@ -4,7 +4,7 @@
 
   <include file="$(find rover_description)/launch/display.launch"/>
   
-  <include file="$(find husky_control)/launch/control.launch"/>
+  <include file="$(find rover_control)/launch/control_withoutekf.launch"/>
     <!--<include file="$(find rover_description)/launch/gazebo.launch"/>-->
 
   <node name="rover" pkg="joint_state_publisher" type="joint_state_publisher">
