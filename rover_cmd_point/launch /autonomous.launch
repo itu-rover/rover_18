@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+
+
+  <node name="rover_autonom" pkg="rover_send_point" type="rover_autonom.py"/>
+
+
+ 
+
+</launch>

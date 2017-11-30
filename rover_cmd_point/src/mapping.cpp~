@@ -1,0 +1,152 @@
+#include <ros/ros.h>
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+#include "tf/tf.h"
+#include <tf/transform_listener.h>
+#include <fstream>
+#include "nav_msgs/Odometry.h"
+
+ros::Publisher velocity_publisher;
+ros::Subscriber pose_subscriber;
+nav_msgs::Odometry turtlebot_odom_pose;
+
+
+
+double degrees2radians(double angle_in_degrees);
+void moveTogoal( double xGoal, double yGoal);
+void move (double speed, double distance, bool isForward);
+void rotate(double speed, double angle, bool isClockwise);
+void poseCallback(const nav_msgs::Odometry::ConstPtr & pose_message);
+
+int PI=3.14;
+int main(int argc, char** argv){
+
+   ros::init(argc, argv, "turtlesim_cleaner");
+   ros::NodeHandle n;
+   pose_subscriber = n.subscribe("/odom", 10, poseCallback);
+   velocity_publisher =n.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/teleop", 1000);	
+move(4,4,1);
+
+/*moveTogoal(-3.90 , 2.66);
+moveTogoal(-4.65, 2);
+moveTogoal(-5 , -2);
+moveTogoal(-5.82 , -2.53);
+moveTogoal(-2.3 , -0.5);
+moveTogoal(-3 , -1.4);
+moveTogoal(-5 , -1.4);*/
+
+
+  return 0;
+}
+double degrees2radians(double angle_in_degrees){
+
+	return angle_in_degrees *PI /180.0;
+}
+
+void moveTogoal( double xGoal, double yGoal)
+
+{   ros::Rate loop_rate(5);
+   
+ actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac("move_base", true);
+
+  while(!ac.waitForServer(ros::Duration(5.0))){
+    ROS_INFO("Waiting for the move_base action server to come up");
+  }
+
+  move_base_msgs::MoveBaseGoal goal;
+
+  goal.target_pose.header.frame_id = "map";
+  goal.target_pose.header.stamp = ros::Time::now();
+ 
+   goal.target_pose.pose.position.x =  xGoal;
+   goal.target_pose.pose.position.y =  yGoal;
+   goal.target_pose.pose.position.z =  0.0;
+   goal.target_pose.pose.orientation.x = 0.0;
+   goal.target_pose.pose.orientation.y = 0.0;
+   goal.target_pose.pose.orientation.z = 0.0;
+   goal.target_pose.pose.orientation.w = 1.0;
+
+
+  ROS_INFO("Sending goal " );
+  std::cout<<"x:"<<xGoal<<" y:"<<yGoal ;
+  ac.sendGoal(goal);
+
+  ac.waitForResult();
+
+  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+    ROS_INFO("Hooray!");
+  else
+    ROS_INFO("The base failed to move for some reason");
+	loop_rate.sleep();
+}
+void poseCallback(const nav_msgs::Odometry::ConstPtr & pose_message){
+	turtlebot_odom_pose.pose.pose.position.x=pose_message->pose.pose.position.x;
+	turtlebot_odom_pose.pose.pose.position.y=pose_message->pose.pose.position.y;
+	turtlebot_odom_pose.pose.pose.position.z=pose_message->pose.pose.position.z;
+
+	turtlebot_odom_pose.pose.pose.orientation.w=pose_message->pose.pose.orientation.w;
+	turtlebot_odom_pose.pose.pose.orientation.x=pose_message->pose.pose.orientation.x;
+	turtlebot_odom_pose.pose.pose.orientation.y=pose_message->pose.pose.orientation.y;
+	turtlebot_odom_pose.pose.pose.orientation.z=pose_message->pose.pose.orientation.z;
+}
+
+void move(double speed, double distance, bool isForward){
+   geometry_msgs::Twist vel_msg;
+   //set a random linear velocity in the x-axis
+   if (isForward)
+	   vel_msg.linear.x =abs(speed);
+   else
+	   vel_msg.linear.x =-abs(speed);
+   vel_msg.linear.y =0;
+   vel_msg.linear.z =0;
+   //set a random angular velocity in the y-axis
+   vel_msg.angular.x = 0;
+   vel_msg.angular.y = 0;
+   vel_msg.angular.z =0;
+
+   double t0 = ros::Time::now().toSec();
+   double current_distance = 0.0;
+   ros::Rate loop_rate(100);
+   do{
+	   velocity_publisher.publish(vel_msg);
+	   double t1 = ros::Time::now().toSec();
+	   current_distance = speed * (t1-t0);
+	   ros::spinOnce();
+	   loop_rate.sleep();
+	   //cout<<(t1-t0)<<", "<<current_distance <<", "<<distance<<endl;
+   }while(current_distance<distance);
+   vel_msg.linear.x =0;
+   velocity_publisher.publish(vel_msg);
+
+}
+    void rotate(double angular_speed, double angle, bool isClockwise){
+
+		geometry_msgs::Twist vel_msg;
+	   //set a random linear velocity in the x-axis
+	   vel_msg.linear.x =0;
+	   vel_msg.linear.y =0;
+	   vel_msg.linear.z =0;
+	   //set a random angular velocity in the y-axis
+	   vel_msg.angular.x = 0;
+	   vel_msg.angular.y = 0;
+	   if (isClockwise)
+	   	vel_msg.angular.z =-abs(angular_speed);
+	   else
+	   	vel_msg.angular.z =abs(angular_speed);
+
+	   double t0 = ros::Time::now().toSec();
+	   double current_angle = 0.0;
+	   ros::Rate loop_rate(1000);
+	   do{
+		     velocityPublisher.publish(vel_msg);
+		   double t1 = ros::Time::now().toSec();
+		   current_angle = angular_speed * (t1-t0);
+		   ros::spinOnce();
+		   loop_rate.sleep();
+		   //cout<<(t1-t0)<<", "<<current_angle <<", "<<relative_angle<<endl;
+	   }while(current_angle<angle);
+	   vel_msg.angular.z =0;
+	     velocityPublisher.publish(vel_msg);
+
+}
+

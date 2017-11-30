@@ -63,9 +63,9 @@ class Localization(object):
             self.dt = (self.current_time - self.last_time).to_sec()
                     
             
-            if(self.rover_accx>0 and self.rover_accx<0.44): #belirli bir ivmeden sonrası 0 kabul edildi
+            if(self.rover_accx>0 and self.rover_accx<0.10): #belirli bir ivmeden sonrası 0 kabul edildi
                 self.rover_accx=0
-            if(self.rover_accx<0 and self.rover_accx>-0.44): #belirli bir ivmeden sonrası 0 kabul edildi
+            if(self.rover_accx<0 and self.rover_accx>-0.10): #belirli bir ivmeden sonrası 0 kabul edildi
                 self.rover_accx=0
 
             if(self.twist.linear.x != 0):
@@ -112,6 +112,7 @@ class Localization(object):
             rospy.Subscriber('/husky_velocity_controller/cmd_vel', Twist, self.callback)
             rospy.Subscriber('/rover_serial_imu',String, self.callback_sensor)
             # Publisher(s)
+            print(self.odom)
             self.odom_pub.publish(self.odom) 
 
             #print(str(self.yaw_min)+ "k:"+str(self.yaw_now)+"e"+str(self.yaw_max))

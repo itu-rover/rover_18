@@ -1,0 +1,54 @@
+
+#include "ros/ros.h"
+#include "geometry_msgs/Twist.h"
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+#include "nav_msgs/Odometry.h"
+#include <sstream>
+#include "std_msgs/String.h"
+
+using namespace std;
+
+ros::Publisher velocity_publisher;
+ros::Subscriber pose_subscriber;
+nav_msgs::Odometry odom;
+ geometry_msgs::Twist new_vel;
+
+void poseCallback(const nav_msgs::Odometry::ConstPtr & pose_message);
+double getDistance(double x1, double y1, double x2, double y2);
+void moveGoal( double x1, double y1, double distance_tolerance);
+void moveTogoal( double xGoal, double yGoal);
+void move(double speed, double distance, bool isForward);
+void velCallback(const geometry_msgs::Twist::ConstPtr& vel) ;
+int main(int argc, char **argv)
+{
+	// Initiate new ROS node named "talker"
+	ros::init(argc, argv, "rover_garen_node");
+	ros::NodeHandle np;
+	pose_subscriber = np.subscribe("/husky_velocity_controller/cmd_vel", 50, velCallback);
+	velocity_publisher = np.advertise<geometry_msgs::Twist>("/husky_velocity_controller/cmd_vel", 1000);
+	ros::Rate loop_rate(5);
+   
+
+	ROS_INFO("\n\n\n ********START TESTING*********\n");
+	
+       // cout<<"x:"<<new_vel.linear.x<<"y:"<<new_vel.linear.y<<"thetha:"<<new_vel.angular.z ;
+	ros::spin();
+
+	return 0;
+}
+
+
+
+
+
+void velCallback(const geometry_msgs::Twist::ConstPtr& vel) 
+{
+        new_vel.linear.x=vel->linear.x;
+	new_vel.linear.y=vel->linear.y;
+	new_vel.angular.z=vel->angular.z;
+       ROS_INFO("x : %lf y : %lf thetha : %lf ",new_vel.linear.x,new_vel.linear.y,new_vel.angular.z);	
+}
+
+
+

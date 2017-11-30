@@ -1,0 +1,14 @@
+#include "ros/ros.h"
+#include <cereal_port/CerealPort.h>
+#include "std_msgs/String.h"
+
+int main (int argc, char** argv){
+
+	ros::init(argc,argv,"rover_garen_node2");
+	ros::NodeHandle n ;
+	
+	cereal::CerealPort device;
+	char reply[8];
+
+	try{ device.open("/dev/ttyUSB0",9600)};
+}
