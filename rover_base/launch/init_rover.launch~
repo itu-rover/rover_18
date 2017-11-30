@@ -4,8 +4,7 @@
 
  <include file="$(find rover_description)/launch/display.launch"/>
   
-  <include file="$(find husky_control)/launch/control.launch"/>
-    <!--<include file="$(find rover_description)/launch/gazebo.launch"/>-->
+  <include file="$(find rover_control)/launch/control.launch"/>
 
   <node name="rover" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="false" />
@@ -17,12 +16,5 @@
 
    
 
-
- <!-- <include file="$(find rover_navigation)/launch/rover_scan.launch"/>-->
-
-  <!-- include file="$(find depthimage_to_laserscan)/test/rostest/rover_scan.launch"/-->
-  <!-- node name="rover_imu" pkg="rover_control" type="imu_publisher.py" /-->
-
-  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find rover_base)/rviz/rover.rviz" /-->
 
 </launch>

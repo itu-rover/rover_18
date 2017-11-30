@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>rover_cmd_point</name>
+  <name>rover_send_point</name>
   <version>0.0.0</version>
-  <description>The rover_cmd_point package</description>
+  <description>The rover_send_point package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

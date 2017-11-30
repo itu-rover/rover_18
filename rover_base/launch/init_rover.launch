@@ -12,7 +12,7 @@
   
 
 <node name="rover_garen2_control" pkg="rover_control" type="rover_garen2_control.py"/>
-<node name="rover_cmd_sub" pkg="rover_send_point" type="rover_cmd_sub.py"/>
+<node name="rover_cmd_sub" pkg="rover_cmd_point" type="rover_cmd_sub.py"/>
 
    
 
