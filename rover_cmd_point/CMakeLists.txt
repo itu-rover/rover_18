@@ -126,6 +126,10 @@ CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs message_runtime actionlib mov
 #   src/${PROJECT_NAME}/turtlesim_cleaner.cpp
 # )
 
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

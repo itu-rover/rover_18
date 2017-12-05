@@ -12,7 +12,7 @@
   </node>
   
  <!--<node name="rover_real_time_control" pkg="rover_control" type="rover_real_time_control.py">-->
-<node name="rover_real_time_control" pkg="rover_control" type="rover_real_time_control3.py"/>
+<node name="rover_real_time_control3" pkg="rover_control" type="rover_real_time_control3.py"/>
 <node name="rover_cmd_sub" pkg="rover_cmd_point" type="rover_cmd_sub.py"/>
 
 
