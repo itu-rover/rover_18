@@ -74,6 +74,7 @@ def main():
         imuMsg.header.stamp= rospy.Time.now()
         imuMsg.header.frame_id = 'base_link'
         #rospy.loginfo(imuMsg)
+        print("ax:"+ str(rover_accx) + "vth:"+ str(vth*180/3.14)+" yaw:" +str(yaw) )
         pub.publish(imuMsg)
         yaw_old=yaw
         last_time =  rospy.Time.now()

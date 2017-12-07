@@ -55,8 +55,7 @@ def letsSerial():
         
         if(motor_flag==True): #motor
 
-            print(serialString1+" is opened")
-
+           
             ser = serial.Serial(port=serialString1, baudrate=9600,parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)  # open serial
             ser.timeout = 1
