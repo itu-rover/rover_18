@@ -11,10 +11,10 @@ RoverSerial:
 
     baudrates:
         baudrate1: '9600'
-        baudrate2: '115200'
-        baudrate3: '0'
+        baudrate2: '0'
+        baudrate3: '00'
 
     ports:
         serialString1: '/dev/ttyUSB0'
-        serialString2: '/dev/ttyUSB1'
+        serialString2: '/dev/ttyUSB'
         serialString3: '/dev/ttyUSB'

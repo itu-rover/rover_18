@@ -7,6 +7,7 @@ import rospy
 import serial
 import time
 from std_msgs.msg import String
+import rosparam
 from serial_rover_config import *
 
 namespace = '[RoverSerial : ] '
@@ -14,21 +15,21 @@ serialMsg = ""
 serialMsg2 = ""
 serialMsg3 = ""
 
-serialString1 = '/dev/ttyUSB0'
-serialString2 = '/dev/ttyUSB1'
-serialString3 = '/dev/ttyUSB'
+serialString1 = rospy.get_param('RoverSerial/ports/serialString1')
+serialString2 = rospy.get_param('RoverSerial/ports/serialString2')
+serialString3 = rospy.get_param('RoverSerial/ports/serialString3')
 
-sub_topic1 = 'rover_serial_topic'
-sub_topic2 = 'rover_serial_2'
-sub_topic3 = 'rover_serial_3'
+sub_topic1 = rospy.get_param('RoverSerial/sub_topics/sub_topic1')
+sub_topic2 = rospy.get_param('RoverSerial/sub_topics/sub_topic2')
+sub_topic3 = rospy.get_param('RoverSerial/sub_topics/sub_topic3')
 
-pub_topic1 = 'rover_serial_sensor'
-pub_topic2 = 'rover_serial_imu'
-pub_topic3 = 'rover_serial_sensor3'
+pub_topic1 = rospy.get_param('RoverSerial/pub_topics/pub_topic1')
+pub_topic2 = rospy.get_param('RoverSerial/pub_topics/pub_topic2')
+pub_topic3 = rospy.get_param('RoverSerial/pub_topics/pub_topic3')
 
-baudrate1 = '9600'
-baudrate2 = '115200'
-baudrate3 = '0'
+baudrate1 = rospy.get_param('RoverSerial/baudrates/baudrate1')
+baudrate2 = rospy.get_param('RoverSerial/baudrates/baudrate2')
+baudrate3 = rospy.get_param('RoverSerial/baudrates/baudrate3')
 
 #get data from pc
 def serialCallback(data):
@@ -117,14 +118,14 @@ def letsSerial():
             baudrate1 = raw_input("1. Baudrate : ")
             baudrate2 = raw_input("2. Baudrate : ")
             baudrate3 = raw_input("3. Baudrate : ")
-            if rospy.has_param('RoverSerial/baudrates/baudrate1'):
-                rospy.delete_param('RoverSerial/baudrates/baudrate1')
-            rospy.set_param('RoverSerial/baudrates/baudrate1', baudrate1)
+
 
 
 
 
         elif serConfig == 'S' or serConfig == 's':
+            debug = rospy.get_param('RoverSerial/baudrates/baudrate1')
+            print(debug)
             print(namespace + "Serial port 1: " + serialString1)
             print(namespace + "Serial port 2: " + serialString2)
             print(namespace + "Serial port 3: " + serialString3)
@@ -140,6 +141,8 @@ def letsSerial():
 
 
         else:
+
+
             #All ports are open
             if serialString1 != '/dev/ttyUSB' and serialString2 != '/dev/ttyUSB' and serialString3 != '/dev/ttyUSB':
 
@@ -254,6 +257,7 @@ def letsSerial():
                         printOnce = False
 
                     receive = ser.readline()
+                    ser.writelines(serialMsg + "\n")
 
                     #There is no data that goes to the rover from pc. So there is no other writelines.
 
@@ -262,7 +266,7 @@ def letsSerial():
                     ser.flushInput()
                     ser.flushOutput()
 
-                    print(namespace + "Reading from 1: " + str(receive))
+                    print(namespace + "Reading from 1: " + str(receive) + "Writing this to 1: " +  str(serialMsg))
 
 
 

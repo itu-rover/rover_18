@@ -40,19 +40,16 @@ import rospy
 from std_msgs.msg import String
 import time
 
+
 def talker():
-    pub = rospy.Publisher('rover_serial_topic', String, queue_size=10)
+    pub = rospy.Publisher('rover_serial_topiciciciciic', String, queue_size=10)
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-        for i in range(0,99):
-            hello_str = "M199000E"
-            rospy.loginfo(hello_str + str(i))
-            pub.publish(hello_str + str(i))
-            i += 1
-            if i == 99:
-                i = 0
-            time.sleep(0.1)
+
+        hello_str = "M199000E"
+        #pub.publish(hello_str)
+
 
         rate.sleep()
 
