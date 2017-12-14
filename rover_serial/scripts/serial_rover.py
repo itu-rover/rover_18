@@ -235,7 +235,7 @@ def letsSerial():
                     ser2.flushOutput()
 
                     print(namespace + "Reading from 1 : " + str(receive) + " Writing to 1 : " + str(serialMsg))
-                    print(namespace + "Reading from 2 : " + str(receive2) + "Writing to 2 : " + str(serialMsg2))
+                    print(namespace + "Reading from 2 : " + str(receive2) + " Writing to 2 : " + str(serialMsg2))
 
 
 

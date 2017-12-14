@@ -14,8 +14,8 @@
       <file leaf-file-name="serial_rover.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/serial_rover.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="469">
-              <caret line="243" column="0" lean-forward="true" selection-start-line="243" selection-start-column="0" selection-end-line="243" selection-end-column="0" />
+            <state relative-caret-position="197">
+              <caret line="227" column="0" lean-forward="true" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
               <folding>
                 <element signature="e#120#132#0" expanded="true" />
               </folding>
@@ -273,8 +273,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/serial_rover.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="469">
-          <caret line="243" column="0" lean-forward="true" selection-start-line="243" selection-start-column="0" selection-end-line="243" selection-end-column="0" />
+        <state relative-caret-position="197">
+          <caret line="227" column="0" lean-forward="true" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
           <folding>
             <element signature="e#120#132#0" expanded="true" />
           </folding>
