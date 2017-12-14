@@ -15,7 +15,7 @@ from geographic_msgs.msg import WayPoint, GeoPoint
 
 class Localization(object):
     def __init__(self):
-        rospy.init_node('rover_real_time_control')
+        rospy.init_node('rover_real_time_control3')
 
 
         self.x = 0.0
@@ -38,6 +38,8 @@ class Localization(object):
         self.odom_broadcaster = tf.TransformBroadcaster()
         self.twist = Twist()
         self.controller()
+
+        self.ferhat_pub=rospy.Publisher('ferhat_topic',String,queue_size=50)
         
     def callback_sensor(self,data):
         self.splitted_data=data.data.split(',') #serialdan gelen veri alındı
@@ -56,24 +58,42 @@ class Localization(object):
         self.twist.angular.z = data.angular.z
 
     def controller(self):
+<<<<<<< HEAD
         rate = rospy.Rate(10) #10 Hz
+=======
+        self.rate = rospy.Rate(5) #10 Hz
+>>>>>>> 6f8932afbc482e2d3e7c69755f71b7b56c838d85
 
         while not rospy.is_shutdown():
             self.current_time = rospy.Time.now()
             self.dt = (self.current_time - self.last_time).to_sec()
                     
             
+<<<<<<< HEAD
           
+=======
+            if(self.rover_accx>0 and self.rover_accx<0.10): #belirli bir ivmeden sonrası 0 kabul edildi
+                self.rover_accx=0
+                self.vx = 0
+            if(self.rover_accx<0 and self.rover_accx>-0.10): #belirli bir ivmeden sonrası 0 kabul edildi
+                self.rover_accx=0
+                self.vx = 0
+>>>>>>> 6f8932afbc482e2d3e7c69755f71b7b56c838d85
 
             if(self.twist.linear.x != 0):
               self.vx=(self.rover_accx)*self.dt*10
 
             else:
+<<<<<<< HEAD
                 #self.vx=0
                 self.rover_accx=0
 
             print(self.vx)
            
+=======
+                self.vx=0
+                self.rover_accx = 0
+>>>>>>> 6f8932afbc482e2d3e7c69755f71b7b56c838d85
 
            
             self.vy = self.twist.linear.y 
@@ -114,11 +134,17 @@ class Localization(object):
             rospy.Subscriber('/husky_velocity_controller/cmd_vel', Twist, self.callback)
             rospy.Subscriber('/rover_serial_imu',String, self.callback_sensor)
             # Publisher(s)
+<<<<<<< HEAD
             #print(self.odom)
             self.odom_pub.publish(self.odom) 
+=======
+            print(self.odom)
+            self.odom_pub.publish(self.odom)
+            self.ferhat_pub.publish("vx = " + str(self.vx) + "  acc_x = " + str(self.acc_x) + "  twist.linear.x =  " + str(self.twist.linear.x))
+>>>>>>> 6f8932afbc482e2d3e7c69755f71b7b56c838d85
 
             #print(str(self.yaw_min)+ "k:"+str(self.yaw_now)+"e"+str(self.yaw_max))
-            rate.sleep()
+            self.rate.sleep()
 
             
              

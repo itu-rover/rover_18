@@ -55,6 +55,13 @@ def main():
             dyaw=yaw-yaw_old
             vth=dyaw/dt
 
+
+        if(rover_accx>0 and rover_accx<0.40):
+            rover_accx=0
+
+        if(rover_accx<0 and rover_accx>-0.40):
+            rover_accx=0
+
         # Acceloremeter
         imuMsg.linear_acceleration.x = rover_accx
         imuMsg.linear_acceleration.y = 0
@@ -74,7 +81,7 @@ def main():
         imuMsg.header.stamp= rospy.Time.now()
         imuMsg.header.frame_id = 'base_link'
         #rospy.loginfo(imuMsg)
-        print("ax:"+ str(rover_accx) + "vth:"+ str(vth*180/3.14)+" yaw:" +str(yaw) )
+        print(imuMsg)
         pub.publish(imuMsg)
         yaw_old=yaw
         last_time =  rospy.Time.now()
