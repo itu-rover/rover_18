@@ -122,7 +122,7 @@ class RoverArm(object):
     # NOTE: Returning format: "base_yaw,base_pitch,secondary_axis,gripper_pitch,gripper_rotation"
     def return_model(self):
         str_msg = ""
-        for i in range(0, len(self.joint_angles))
+        for i in range(0, len(self.joint_angles)):
             str_msg += str(self.joint_angles[i])
         return str_msg
 
