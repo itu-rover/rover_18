@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import rospy
+#import rospy
 
 # NOTE: These functions can be added to a library - optional
 # Vectorial Calculations
@@ -122,8 +122,9 @@ class RoverArm(object):
     # NOTE: Returning format: "base_yaw,base_pitch,secondary_axis,gripper_pitch,gripper_rotation"
     def return_model(self):
         str_msg = ""
-        for i in range(0, len(self.joint_angles)):
-            str_msg += str(self.joint_angles[i])
+        for i in range(0, len(self.joint_angles) - 1):
+            str_msg += str(self.joint_angles[i]) + str(",")
+        str_msg += str(self.joint_angles[len(self.joint_angles) - 1])
         return str_msg
 
 
