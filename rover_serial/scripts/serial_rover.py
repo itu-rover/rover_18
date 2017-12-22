@@ -246,6 +246,7 @@ def letsSerial():
             #1 port open.
             elif serialString1 != '/dev/ttyUSB' and serialString2 == '/dev/ttyUSB' and serialString3 == '/dev/ttyUSB':
 
+
                 ser = serial.Serial(port=serialString1, baudrate=int(baudrate1), parity=serial.PARITY_NONE,
                                      stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)  # open serial
                 ser.timeout = 1
