@@ -46,10 +46,21 @@ def talker():
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
+<<<<<<< HEAD
 
         hello_str = "M199000E"
         #pub.publish(hello_str)
 
+=======
+        for i in range(0,99):
+            hello_str = "M199000E"
+            rospy.loginfo(hello_str + str(i))
+            #pub.publish(hello_str + str(i))
+            i += 1
+            if i == 99:
+                i = 0
+            time.sleep(0.1)
+>>>>>>> e36d0186fe58347e5a6c6fa7868000444810cc0b
 
         rate.sleep()
 

@@ -56,10 +56,11 @@ class VelocityController(object):
             # We do not need this part, we are doing our own localization
             # compute odometry in a typical way given the velocities of the robot
             self.dt = (self.current_time - self.last_time).to_sec()
+            self.th = self.vth*self.dt
             self.delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * self.dt
             self.delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * self.dt
            
-            self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, 0)
+            self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.th)
    
             # next, we'll publish the odometry message over ROS
             self.odom = Odometry()
@@ -76,7 +77,7 @@ class VelocityController(object):
             # Subscriber(s)
            
             self.last_time = self.current_time
-            rospy.Subscriber('/husky_velocity_controller/cmd_vel', Twist, self.callback)
+            rospy.Subscriber('/rover_imu/cmd_vel', Twist, self.callback)
             #rospy.Subscriber('/rover_serial_sensor',String, self.callback_sensor)
             # Publisher(s)
             self.odom_pub.publish(self.odom) 

@@ -15,9 +15,15 @@ serialMsg = ""
 serialMsg2 = ""
 serialMsg3 = ""
 
+<<<<<<< HEAD
 serialString1 = rospy.get_param('RoverSerial/ports/serialString1')
 serialString2 = rospy.get_param('RoverSerial/ports/serialString2')
 serialString3 = rospy.get_param('RoverSerial/ports/serialString3')
+=======
+serialString1 = '/dev/ttyUSB0'
+serialString2 = '/dev/ttyUSB'
+serialString3 = '/dev/ttyUSB'
+>>>>>>> e36d0186fe58347e5a6c6fa7868000444810cc0b
 
 sub_topic1 = rospy.get_param('RoverSerial/sub_topics/sub_topic1')
 sub_topic2 = rospy.get_param('RoverSerial/sub_topics/sub_topic2')
@@ -27,9 +33,15 @@ pub_topic1 = rospy.get_param('RoverSerial/pub_topics/pub_topic1')
 pub_topic2 = rospy.get_param('RoverSerial/pub_topics/pub_topic2')
 pub_topic3 = rospy.get_param('RoverSerial/pub_topics/pub_topic3')
 
+<<<<<<< HEAD
 baudrate1 = rospy.get_param('RoverSerial/baudrates/baudrate1')
 baudrate2 = rospy.get_param('RoverSerial/baudrates/baudrate2')
 baudrate3 = rospy.get_param('RoverSerial/baudrates/baudrate3')
+=======
+baudrate1 = '115200'
+baudrate2 = '0'
+baudrate3 = '0'
+>>>>>>> e36d0186fe58347e5a6c6fa7868000444810cc0b
 
 #get data from pc
 def serialCallback(data):
@@ -73,7 +85,7 @@ def letsSerial():
     rospy.Subscriber(sub_topic2, String, serialCallback2)
     rospy.Subscriber(sub_topic3, String, serialCallback3)
 
-    sensor_pub = rospy.Publisher(pub_topic1, String, queue_size=10)
+    sensor_pub = rospy.Publisher('/rover_serial_imu', String, queue_size=10)
     sensor_pub2 = rospy.Publisher(pub_topic2, String, queue_size=10)
     sensor_pub3 = rospy.Publisher(pub_topic3,String, queue_size =10)
 
