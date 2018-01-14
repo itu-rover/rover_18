@@ -37,6 +37,8 @@ def main():
     global twist
     vx=0
     vth=0
+    count=0
+    vxold=vx
     print("Sleeping 1 second")
     rospy.sleep(1)
     # while(1)
@@ -48,29 +50,47 @@ def main():
         dt = (current_time - last_time).to_sec()
         
         range=0.05
-       
+        
 
         if(imuMsg.linear_acceleration.x>0 and imuMsg.linear_acceleration.x<range):
             imuMsg.linear_acceleration.x=0
-            vx=0
+            
 
         if(imuMsg.linear_acceleration.x<0 and imuMsg.linear_acceleration.x>-range):
             imuMsg.linear_acceleration.x=0
-            vx=0
-        
+            
+     
         if(imuMsg.angular_velocity.z>0 and imuMsg.angular_velocity.z<range):
             imuMsg.angular_velocity.z=0
-            vth=0
+           
         if(imuMsg.angular_velocity.z<0 and imuMsg.angular_velocity.z>-range):
             imuMsg.angular_velocity.z=0
-            vth=0
+            
 
-       
+        
+   
+
         vx += imuMsg.linear_acceleration.x*dt*50
+
         if(vx<0):
+         vx=0
+  
+
+        if(imuMsg.linear_acceleration.x==0 and vx>0.05):
+            vx=vxold
+
+        if(imuMsg.linear_acceleration.x==0 and vx<0.05):
             vx=0
+       
+        if(vx==vxold):
+            count +=1
+
+        if(count>30):
+            vx=0
+            count=0
 
         vth = imuMsg.angular_velocity.z
+        print("vx: "+str(vx))
 
         twcs.header.stamp =current_time
         twcs.header.frame_id = "odom"
@@ -82,7 +102,7 @@ def main():
         twist.angular.z=vth
  
    
-
+        vxold=vx
 
         last_time = current_time
          

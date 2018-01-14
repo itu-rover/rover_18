@@ -6,7 +6,7 @@ two_d_mode: true
 
 frequency: 50
 
-odom0: husky_velocity_controller/odom
+odom0: odometry/gps
 odom0_config: [false, false, false,
                false, false, false,
                true, true, true,
@@ -14,6 +14,8 @@ odom0_config: [false, false, false,
                false, false, false]
 odom0_differential: false
 odom0_queue_size: 10
+
+ 
 
 imu0: imu/data
 imu0_config: [true, true, true,
@@ -24,14 +26,7 @@ imu0_config: [true, true, true,
 imu0_differential: true
 imu0_queue_size: 10
 imu0_remove_gravitational_acceleration: true
-
-odom1: odometry/gps
-odom1_config: [true, true, true, 
-                               false, false, false, 
-                               false, false, false, 
-                               false, false, false,
-                               false, false, false]
-odom1_differential: false
+ 
 
 twist0: rover_imu/cmd_vel_withcov
 
@@ -42,3 +37,4 @@ twist0_config:  [true, false, false,
                  false, false, false]
 
 twist0_queue_size: 10
+twist0_differential: false
