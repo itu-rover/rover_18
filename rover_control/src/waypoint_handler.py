@@ -23,8 +23,9 @@ addlon=0
 addlat=0
 count=0
 
+x=0
+y=0
 class Sensor_Handler(object):
-
 
     def bearing(self,latCur, lonCur, latWP, lonWP): #Bearing to waypoint (degrees)
         latWP, lonWP, latCur, lonCur = map(radians, [latWP, lonWP, latCur, lonCur]) #Convert into Radians to perform math
@@ -39,8 +40,11 @@ class Sensor_Handler(object):
         return self.earthRadius * 2.0 * asin(sqrt(a))  #Return calculated distance to waypoint in Metres
 
     def callback_odom(self,data):
+        global x,y
         self.Xstr=str(data.pose.pose.position.x)
         self.Ystr=str(data.pose.pose.position.y)
+        x = data.pose.pose.position.x
+        y = data.pose.pose.position.y
         if(self.Xstr != '' and  self.flag==1):
             self.send_msgs.currPosY=self.Ystr
             self.send_msgs.currPosX=self.Xstr 
@@ -71,6 +75,9 @@ class Sensor_Handler(object):
     def take_sensor_data(self):
         rate = rospy.Rate(1) # 10hz
         global count ,addlon ,addlat ,avrglonCur ,avrglatCur
+        global x, y
+        self.sendOnce = 0
+
          
         while not rospy.is_shutdown():
             self.earthRadius = 6371000.0 #Metres
@@ -83,8 +90,8 @@ class Sensor_Handler(object):
           
 
             if( self.WPupdatestate==0):
-                self.latWP= 41.106113 #float(raw_input("Enter Goal Lat:") )          #self.waypoint.position.latitude
-                self.lonWP= 29.024930 #float(raw_input("Enter Goal Lon:")  )         #self.waypoint.position.longitude
+                self.latWP= 41.105283#float(raw_input("Enter Goal Lat:") )          #self.waypoint.position.latitude
+                self.lonWP= 29.023683 #float(raw_input("Enter Goal Lon:")  )         #self.waypoint.position.longitude
                 self.WPupdatestate=1
                    
             
@@ -112,11 +119,18 @@ class Sensor_Handler(object):
             self.send_msgs.angle=str(self.bearing(latCur, lonCur, self.latWP, self.lonWP))
      
              
-            if(self.send_msgs.currPosX !=''):
+            if(self.send_msgs.currPosX !='' and  x > (-25000)):
 
-                self.pub.publish(self.send_msgs)
-                #rospy.loginfo(self.send_msgs.currPosX)
-                self.WPupdatestate=0
+
+                if self.sendOnce < 2:
+                    self.pub.publish(self.send_msgs)
+                    rospy.loginfo(self.send_msgs.currPosX + "  " + self.send_msgs.currPosY)
+                    self.WPupdatestate=0
+                    self.sendOnce += 1
+                    rate.sleep()
+
+            else:
+                print("The GPS Data is meaningless")
 
                
 

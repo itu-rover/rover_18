@@ -38,6 +38,10 @@ class Sensor_Handler(object):
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
 
+            self.addLat = 0.0
+            self.addLon = 0.0
+            self.avrLat = 0.0
+            self.avrLon = 0.0
             self.current_time = rospy.Time.now()
             self.gps_fix = NavSatFix()
 
@@ -46,12 +50,23 @@ class Sensor_Handler(object):
             self.gps_fix.status.status = 0 # GPS FIXED
             self.gps_fix.status.service = 1 # GPS SERVICE = GPS
             # Buralar bizden gelecek
-            self.gps_fix.latitude =  self.lat
-            self.gps_fix.longitude =  self.long
-            self.gps_fix.altitude = 0
-            self.gps_fix.position_covariance = [0,0,0,0,0,0,0,0,0]
-            self.gps_fix.position_covariance_type = 0
-            self.pub.publish(self.gps_fix)
+            for x in range (0,100):
+                self.addLat += self.lat
+                self.addLon += self.long
+            x=0
+            self.avrLon = self.addLon/100
+            self.avrLat = self.addLat/100
+            print(str(self.avrLat) + "  " + str(self.avrLon) +   "  ")
+
+            if (self.avrLon == 0 or self.avrLat == 0):
+                print("0,0 ERROR")
+            else:
+                self.gps_fix.latitude =  self.avrLat
+                self.gps_fix.longitude =  self.avrLon
+                self.gps_fix.altitude = 0
+                self.gps_fix.position_covariance = [0,0,0,0,0,0,0,0,0]
+                self.gps_fix.position_covariance_type = 0
+                self.pub.publish(self.gps_fix)
             #self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, 0)
             #self.gps_broadcaster.sendTransform((0.0,0.0, 0.0),self.odom_quat,self.current_time,"base_link","odom")
             rospy.Subscriber('/rover_serial_sensor',String, self.callback_sensor)

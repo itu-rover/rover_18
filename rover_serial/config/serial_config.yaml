@@ -15,6 +15,6 @@ RoverSerial:
         baudrate3: '0'
 
     ports:
-        serialString1: '/dev/ttyUSB0'
+        serialString1: '/dev/ttyUSB1'
         serialString2: '/dev/ttyUSB'
         serialString3: '/dev/ttyUSB'

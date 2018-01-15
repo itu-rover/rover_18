@@ -20,11 +20,11 @@ def callbackcmd(data):
         rover_angular_speed = twist.angular.z
     #if linear speed is negative angular way is 0 else 1 
     if twist.linear.x< 0:
-        linear_way = "1"
+        linear_way = "0"
         rover_linear_speed = -twist.linear.x
 
     else:
-        linear_way = "0"
+        linear_way = "1"
         rover_linear_speed = twist.linear.x
         # Linear Speed is translating to string
     rover_linear_speed = int(rover_linear_speed*99/0.5)
