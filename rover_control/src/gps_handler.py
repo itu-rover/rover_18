@@ -24,7 +24,8 @@ class Sensor_Handler(object):
         self.pub = rospy.Publisher('gps/fix', NavSatFix, queue_size = 50 )
         self.lat=0.0
         self.long=0.0 
-        #self.gps_broadcaster = tf.TransformBroadcaster()
+        self.odom_quat=[0.0 ,0.0,0.0,0.0]
+        self.gps_broadcaster = tf.TransformBroadcaster()
         self.take_sensor_data()
 
     def callback_sensor(self,data):
@@ -33,6 +34,10 @@ class Sensor_Handler(object):
         if(self.splitted_data[1] !='' and self.splitted_data[2] !=''  ):
             self.lat=(float(self.splitted_data[1]))
             self.long=(float(self.splitted_data[2]))
+    def callback_odom(self,data):
+
+        self.odom_quat=[data.pose.pose.orientation.x ,data.pose.pose.orientation.y,data.pose.pose.orientation.z,data.pose.pose.orientation.w]
+        
 
     def take_sensor_data(self):
         rate = rospy.Rate(10) # 10hz
@@ -45,7 +50,7 @@ class Sensor_Handler(object):
             self.current_time = rospy.Time.now()
             self.gps_fix = NavSatFix()
 
-            self.gps_fix.header.frame_id = "base_link"
+            self.gps_fix.header.frame_id = "gps"
             self.gps_fix.header.stamp = rospy.Time.now()
             self.gps_fix.status.status = 0 # GPS FIXED
             self.gps_fix.status.service = 1 # GPS SERVICE = GPS
@@ -68,8 +73,10 @@ class Sensor_Handler(object):
                 self.gps_fix.position_covariance_type = 0
                 self.pub.publish(self.gps_fix)
             #self.odom_quat = tf.transformations.quaternion_from_euler(0, 0, 0)
-            #self.gps_broadcaster.sendTransform((0.0,0.0, 0.0),self.odom_quat,self.current_time,"base_link","odom")
+            print(str(self.odom_quat))
+            self.gps_broadcaster.sendTransform((0.0,0.0, 0.0),self.odom_quat,self.current_time,"gps","base_link")
             rospy.Subscriber('/rover_serial_sensor',String, self.callback_sensor)
+            rospy.Subscriber('/odometry/filtered',Odometry, self.callback_odom)
 
             rate.sleep()
             

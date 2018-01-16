@@ -35,7 +35,6 @@ def callback_dist(msg):
     x= float (incoming_data.currPosX ) +( float(incoming_data.distance) * cos(float(incoming_data.angle)))
     y= float (incoming_data.currPosY) +( float(incoming_data.distance) * sin(float(incoming_data.angle)))
     if(x != xold or y != yold):
-
         move_base(x,y)
 
     xold=x
@@ -52,7 +51,7 @@ def move_base(x,y):
         goal = MoveBaseGoal()
         rospy.loginfo("Move base started x: %s y: %s" ,str(x),str(y))
 
-        goal.target_pose.pose.position.x =  -float(x)
+        goal.target_pose.pose.position.x =  float(x)
         goal.target_pose.pose.position.y =  float(y)
         goal.target_pose.pose.orientation.w = 1.0
         goal.target_pose.header.frame_id = 'odom'
@@ -72,8 +71,8 @@ def main():
     rospy.init_node('simple_move')
     rate = rospy.Rate(0.05)
     while not rospy.is_shutdown():
-        rospy.Subscriber("/distancewithangle", Distancewithangle, callback_dist)
-        rate.sleep()
+    	rospy.Subscriber("/distancewithangle", Distancewithangle, callback_dist)
+    	rate.sleep()
 
 
 
