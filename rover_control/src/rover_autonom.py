@@ -71,8 +71,8 @@ def main():
     rospy.init_node('simple_move')
     rate = rospy.Rate(0.05)
     while not rospy.is_shutdown():
-    	rospy.Subscriber("/distancewithangle", Distancewithangle, callback_dist)
-    	rate.sleep()
+        rospy.Subscriber("/distancewithangle", Distancewithangle, callback_dist)
+        rate.sleep()
 
 
 

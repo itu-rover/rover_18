@@ -1,7 +1,7 @@
 RoverSerial:
     sub_topics:
         sub_topic1: 'rover_serial_topic'
-        sub_topic2: 'rover_serial_2'
+        sub_topic2: 'rover_serial_imu'
         sub_topic3: 'rover_serial_3'
 
     pub_topics:
@@ -15,6 +15,6 @@ RoverSerial:
         baudrate3: '0'
 
     ports:
-        serialString1: '/dev/ttyUSB1'
+        serialString1: '/dev/ttyUSB0'
         serialString2: '/dev/ttyUSB'
         serialString3: '/dev/ttyUSB'

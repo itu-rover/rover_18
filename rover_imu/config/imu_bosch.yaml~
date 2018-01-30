@@ -1,5 +1,5 @@
 # USB port
-port: /dev/ttyUSB0
+port: /dev/ttyUSB2
 # Tf frame id
 frame_id: odom
 # Data reading frequency

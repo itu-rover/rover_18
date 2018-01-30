@@ -7,6 +7,7 @@ project(rover_control)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
 find_package(catkin REQUIRED COMPONENTS
   geographic_msgs
   geometry_msgs
@@ -55,7 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
   FILES
-   Serialmsg.msg
+   Distancewithangle.msg
 #   Message2.msg
  )
 
@@ -125,6 +126,11 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+add_executable(teleop_joy src/rover_joy.cpp)
+target_link_libraries(teleop_joy ${catkin_LIBRARIES})
+
+add_executable(laser_handler src/laser_handler.cpp)
+target_link_libraries(laser_handler ${catkin_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -203,3 +209,4 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+

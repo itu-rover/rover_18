@@ -15,9 +15,18 @@
 <!--node name="rover_garen2_control" pkg="rover_control" type="rover_garen2_control.py"/-->
 <node name="rover_cmd_sub" pkg="rover_cmd_point" type="rover_cmd_sub.py"/>
 
-     <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true" output="screen">
-      <rosparam param="datum">[41.106121, 29.024162, 0.0, odom, base_link]</rosparam>
+     <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true"  >
+      <rosparam param="datum">[41.106140,29.024063, 0, odom, base_link]</rosparam>
+      <param name="yaw_offset" value="0"/>
+     
   </node>
 
+     <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node1" respawn="true" output="screen">
+      <rosparam param="datum">[41.106140,29.024063,0, odom, base_link]</rosparam>
+      <param name="yaw_offset" value="0"/>
+      <remap from="/odometry/gps" to="/odometry/goal" />
+      <remap from="/gps/fix" to="/gps/goal" />
+       
+  </node>
  
 </launch>

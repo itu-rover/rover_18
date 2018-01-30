@@ -16,6 +16,8 @@ from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geographic_msgs.msg import WayPoint
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu
+import tf
 
 debug = True
 flag=1
@@ -30,11 +32,12 @@ earthRadius = 6371000.0 #Metres
 currPosX = 0.0
 currPosY = 0.0
 currPosZ = 0.0
+yaw=0.0
 
 WPUpdateState = False #True if there has been an update in the waypoint position
 
 lastValidFixTime = 0.0
-
+desiredPose=PoseStamped()
 gpsValidityTimeout = 10.0 #Seconds
 
 def haversineDistance(latCur, lonCur, latWP, lonWP): #Returns distance to waypoint in Metres
@@ -63,10 +66,15 @@ def gpsSubscriber(gpsMsg): #GPS Coordinate recieved from ROS topic, run this fun
     global lonWP
     global altWP
 
+    wayPointPublisher = rospy.Publisher('/desiredWayPoint', String, queue_size=10)
+
     WPUpdateState = True
-    latWP = 41.106445 #WPMsg.position.latitude
-    lonWP = 29.024468#WPMsg.position.longitude
+    latWP = 41.106504 #WPMsg.position.latitude
+    lonWP = 29.023934#WPMsg.position.longitude
     altWP = 0.0 #WPMsg.position.altitude
+
+    wayPointPublisher.publish(str(latWP)+","+str(lonWP))
+
     
     rospy.loginfo("Recieved Waypoint Command, Latitude: %f, Longitude: %f", latWP, lonWP)
     
@@ -91,11 +99,27 @@ def robotPoseSubscriber(poseMsg): #Odometry update recieved from ROS topic, run 
     currPosY = poseMsg.pose.pose.position.y
     currPosZ = poseMsg.pose.pose.position.z
 
- 
-  
+def imuSubscriber(pose): #Odometry update recieved from ROS topic, run this function
+    global yaw
+    global desiredPose
+    quaternion = (
+    pose.orientation.x,
+    pose.orientation.y,
+    pose.orientation.z,
+    pose.orientation.w)
+    euler = tf.transformations.euler_from_quaternion(quaternion)
+    roll = euler[0]
+    pitch = euler[1]
+    yaw = euler[2]
+    desiredPose.pose.orientation.x = pose.orientation.x
+    desiredPose.pose.orientation.y =  pose.orientation.y
+    desiredPose.pose.orientation.z = pose.orientation.z
+    desiredPose.pose.orientation.w = pose.orientation.w
+   
+
 
 def posePublisher(): #Convert absolute waypoint to vector relative to robot, then publish navigation goal to ROS
-    desiredPose = PoseStamped()
+    global desiredPose
     desiredPose.header.frame_id = "/base_link"
     desiredPose.header.stamp = rospy.Time.now()
 
@@ -103,20 +127,17 @@ def posePublisher(): #Convert absolute waypoint to vector relative to robot, the
     global currPosY
     global currPosZ
     global debug
-    
+    global yaw 
+    yaw=yaw*180/3.14
     if debug:
         rospy.loginfo("LatWP: %f, LonWP: %f, LatCur: %f, LonCur: %f", latWP, lonWP, latCur, lonCur)
     distToWP = haversineDistance(latCur, lonCur, latWP, lonWP)
     bearingToWP = bearing(latCur, lonCur, latWP, lonWP)
-    
-    desiredPose.pose.position.x = currPosX + (distToWP * cos(bearingToWP)) #Convert distance and angle to waypoint from Polar to Cartesian co-ordinates then add current position of robot odometry 
-    desiredPose.pose.position.y = currPosY + (distToWP * sin(bearingToWP))
+    print(str(yaw))
+    desiredPose.pose.position.x = currPosX + (distToWP * cos(bearingToWP-yaw)) #Convert distance and angle to waypoint from Polar to Cartesian co-ordinates then add current position of robot odometry 
+    desiredPose.pose.position.y = currPosY + (distToWP * sin(bearingToWP-yaw))
     desiredPose.pose.position.z = altWP - currPosZ #Assuming CurrPosZ is abslolute (eg barometer or GPS)
-    desiredPose.pose.orientation.x = 0
-    desiredPose.pose.orientation.y = 0
-    desiredPose.pose.orientation.z = 0
-    desiredPose.pose.orientation.w = 1
-   
+    
     navGoalPub = rospy.Publisher('/goal', PoseStamped, queue_size=10) #Publish Nav Goal to ROS topic
      
     navGoalPub.publish(desiredPose)
@@ -133,6 +154,8 @@ def main():
       
         rospy.Subscriber("gps/fix", NavSatFix, gpsSubscriber)
         rospy.Subscriber("odometry/filtered", Odometry, robotPoseSubscriber)
+        rospy.Subscriber("imu/data", Imu, imuSubscriber)
+
         rospy.spin()
         
 if __name__ == '__main__':
