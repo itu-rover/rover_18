@@ -47,7 +47,7 @@ TrajectoryPlannerROS:
   publish_cost_grid_pc: true  
 
   # Oscillation Prevention Parameters
-  oscillation_reset_dist: 0.25 #How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
+  oscillation_reset_dist: 1  #0.25 How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
   escape_reset_dist: 0.1
   escape_reset_theta: 0.1
 
@@ -69,7 +69,7 @@ DWAPlannerROS:
 
   # Goal Tolerance Parameters
   yaw_goal_tolerance: 2  #0.1
-  xy_goal_tolerance:  2.5 # 0.2
+  xy_goal_tolerance:  0.2 # 0.2
   latch_xy_goal_tolerance: false
 
   # # Forward Simulation Parameters

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+
+ <!-- Publishes joint tf for displaying Rviz-->
+ <include file="$(find rover_description)/launch/display.launch"/>
+  <!-- Publishes joint tf for displaying Rviz-->
+  <include file="$(find rover_control)/launch/control.launch"/>
+ 
+
+ 
+ 
+<node name="rover_cmd_sub" pkg="rover_control" type="rover_cmd_sub.py" />
+
+<node name="gps_node" pkg="rover_control" type="gps_handler.py" />
+<include file="$(find rover_localization)/launch/rover_localization.launch"/>
+<include file="$(find rover_base)/launch/rover_sim.launch"/>
+<include file="$(find rover_imu)/launch/imu.launch"/>
+       
+ 
+</launch>

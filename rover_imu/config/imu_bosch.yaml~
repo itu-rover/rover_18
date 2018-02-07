@@ -1,8 +1,0 @@
-# USB port
-port: /dev/ttyUSB2
-# Tf frame id
-frame_id: odom
-# Data reading frequency
-freqency: 1
-# Sensor operation mode --> modes could be found in sensor datasheet
-operation_mode: 0x12

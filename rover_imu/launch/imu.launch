@@ -11,9 +11,9 @@
   </node>
 
 	<!-- IMU Bosh transformation publisher -->
-	<node name="base_link_to_imu_bosch"
+	<!--node name="base_link_to_imu_bosch"
 			pkg="tf" type="static_transform_publisher" 
-			args="0.0 0.0 0.0 0.0 0.0 0.0 base_link imu_bosch_link 200" />
+			args="0.0 0.0 0.0 0.0 0.0 0.0 base_link imu_bosch_link 200" /-->
 </launch>
 
 
