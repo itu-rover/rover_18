@@ -2,7 +2,7 @@
 <package>
   <name>rover_base</name>
   <version>0.0.0</version>
-  <description>The rover_base package</description>
+  <description>The rover_bringup package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

@@ -4,14 +4,14 @@
  <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_current_gps" respawn="true"  >
       <rosparam param="datum">[41.106167,29.024075, 0.0, map, base_link]</rosparam>
    
-      <param name="yaw_offset" value="-3.14"/> #-1.8316
+      <param name="yaw_offset" value="0"/> #-1.8316
       <param name="magnetic_declination_radians" value="0.0"/> #0.095644043
       <remap from="/imu/data" to="/imu/data" />
   </node>
    <!-- Run the navsat transform node for waypoint  gps point-->
      <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_waypoint_gps" respawn="true" >
       <rosparam param="datum">[41.106167,29.024075, 0.0, map, base_link]</rosparam>
-      <param name="yaw_offset" value="-3.14"/>
+      <param name="yaw_offset" value="0"/>
       <param name="magnetic_declination_radians" value="0.0"/>
       <remap from="/odometry/gps" to="/odometry/goal" />
       <remap from="/gps/fix" to="/gps/goal" />

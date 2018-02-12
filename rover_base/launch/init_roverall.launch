@@ -7,12 +7,16 @@
   <include file="$(find rover_control)/launch/control.launch"/>
  
 
- 
- 
+ <!-- Publishes cmd_vel to rover_serial -->
 <node name="rover_cmd_sub" pkg="rover_control" type="rover_cmd_sub.py" />
 
+ <!-- Subscribes rover_serial and publishing gps/fix -->
 <node name="gps_node" pkg="rover_control" type="gps_handler.py" />
+
+ <!-- İnitializes navsat nodes and ekf nodes -->
 <include file="$(find rover_localization)/launch/rover_localization.launch"/>
+
+ <!-- İnitializes Rviz  -->
 <include file="$(find rover_base)/launch/rover_sim.launch"/>
 <include file="$(find rover_imu)/launch/imu.launch"/>
        

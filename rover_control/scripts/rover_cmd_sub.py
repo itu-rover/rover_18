@@ -27,7 +27,7 @@ def callbackcmd(data):
         linear_way = "1"
         rover_linear_speed = twist.linear.x
         # Linear Speed is translating to string
-    rover_linear_speed = int(rover_linear_speed*99/1.5)
+    rover_linear_speed = int(rover_linear_speed*99/1)
 
     if rover_linear_speed < 10:
         rover_linear_speed_str = "0" + str(rover_linear_speed)
@@ -36,7 +36,7 @@ def callbackcmd(data):
         rover_linear_speed_str = str(rover_linear_speed)
 
         # Angular Speed is translating to string
-    rover_angular_speed = int(rover_angular_speed*99/1.5)
+    rover_angular_speed = int(rover_angular_speed*99/1)
 
     if rover_angular_speed < 10:
         rover_angular_speed_str = "0" + str(rover_angular_speed)
