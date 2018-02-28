@@ -1,12 +1,13 @@
 from robotic_arm import RoverArm
 from grapher import Grapher
-from ps4 import PS4Controller
+from dualshock4 import PS4Controller
+from robotic_arm import length
+import time
 
-
-ps4 = PS4Controller()
-p = [40,0,40]
+controller = PS4Controller(0x046d, 0xc215)
+k = 0.005
+p = [65,0,40]
 s = [1, 0, 0]
-ps4.init()
 lines = []
 
 def to_lines(points):
@@ -19,31 +20,20 @@ def to_lines(points):
     return v
 
 def anim():
-    global test, lines, p, ps4
-    llist = ps4.listen()[0]
-    if type(llist.get(0)) != type(None):
-        s[1] -= llist.get(0) / 5.
-    if type(llist.get(1)) != type(None):
-        s[2] -= llist.get(1) / 5.
-
-    # if type(llist.get(0)) != type(None):
-    #     p[1] -= llist.get(0) / 2.
-    # if type(llist.get(1)) != type(None):
-    #     p[0] -= llist.get(1) / 2.
-    # if type(llist.get(3)) != type(None):
-    #     p[2] -= llist.get(3) / 2.
-
-    # p[0] += llist.get(1) / 5.
-
-
+    global controller, lines, p, s, test
+    print length(test.joint_points[1])
+    controller.update()
+    p[0] += k * (controller.raw_data[3] - 128)
+    p[2] += k * (controller.raw_data[5] - 128) * -1
     test.update_destination_point(p, s)
     #test.print_info()
     lines = to_lines(test.joint_points)
     g.redraw(lines)
+    time.sleep(0.02)
 
-test = RoverArm([50, 40, 15])
+test = RoverArm([63, 47, 21])
 
-test.update_destination_point([40,0,40], [1,0,0])
+test.update_destination_point([65,0,40], [1,0,0])
 #test.print_info()
 lines = to_lines(test.joint_points)
 

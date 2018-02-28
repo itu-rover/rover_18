@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from random import randint
+import serial
 
 # NOTE: These functions can be added to a library - optional
 
@@ -106,6 +107,22 @@ def is_between(val, min, max):
     else:
         return False
 
+# Low level Conversion
+def to_fixed_size(value, bit_size, is_integer = True):
+    result_string = ""
+    if is_integer:
+        val_int = int(value)
+        conv_string = str(val_int)
+        diff = bit_size - len(conv_string)
+        if diff > 0:
+            for i in range(diff):
+                result_string += "0"
+        result_string += conv_string
+    else:
+        pass
+    return result_string
+
+
 class RoverArm(object):
     def __init__(self, lengths):
         self.Lengths = lengths;
@@ -113,7 +130,7 @@ class RoverArm(object):
         self.joint_names = ["base_yaw", "base_pitch", "secondary_axis", "gripper_pitch", "gripper_rotation"]
         self.last_point = [0, 0, 0]
         self.degrees_to_mm = True
-        self.actuator_lengths = [0, 0]
+        self.actuator_lengths = [29.5, 29.5]
 
     def check_limits(self, _joint_angles):
         for i in range(0, len(_joint_angles)):
@@ -158,12 +175,12 @@ class RoverArm(object):
 
         # degrees to mm Conversion
         if self.degrees_to_mm:
-            self.joint_angles[2] = get_length_from_cos(7.5, 32.7, self.joint_angles[2]) - self.actuator_lengths[1]
-            self.joint_angles[1] = get_length_from_cos(10, 10, self.joint_angles[1]) - self.actuator_lengths[0]
+            self.joint_angles[2] = (get_length_from_cos(7.5, 32.7, self.joint_angles[2]) - self.actuator_lengths[1]) * 10
+            self.joint_angles[1] = (get_length_from_cos(8.124, 31.8, self.joint_angles[1] + 29.74 - 8.44) - self.actuator_lengths[0]) * 10
             print self.joint_angles
 
         self.check_limits(self.joint_angles)
-        
+
         # self.print_cool_words()
         # Calculation of the vectorial speed of joints
         w_rot_base = 1
@@ -223,6 +240,49 @@ class RoverArm(object):
             str_msg += str(self.joint_angles[i]) + str(",")
         str_msg += str(self.joint_angles[len(self.joint_angles) - 1])
         return str_msg
+
+    def return_model_for_low_level(self):
+        # Start bit initialized
+        msg = "S"
+
+        for i in range(1, 4):
+            # Axis Number
+            msg += str(i)
+
+            # Axis angle sign 1 for + 0 for -
+            if self.joint_angles[i] >= 0:
+                msg += "1"
+            else:
+                msg += "0"
+
+            # 3 Bit fixed size message
+            msg += to_fixed_size(self.joint_angles[i], 3)
+
+        # Stop Bit
+        msg += "F"
+
+        return msg
+
+    def establish_serial_connection(self):
+        self.ser = serial.Serial(
+            # 0,
+        	port='/dev/cu.usbmodem1431',
+        	baudrate=9600,
+            timeout=1
+        )
+        self.ser.close()
+        self.ser.open()
+
+
+    def serial_write(self):
+        string = self.return_model_for_low_level()
+        string = "S000F\n"
+        # if self.ser.isOpen():
+        #self.ser.write(string)
+        for i in range(len(string)):
+            self.ser.write(string[i])
+            self.ser.flush()
+
 
     def print_info(self):
         print "Destination Point: " + str(self.destination_point)

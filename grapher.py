@@ -34,7 +34,7 @@ class Grapher():
         self.ax.clear()
         for line in self.lines:
             self.ax.plot([line[0][0], line[1][0]], [line[0][1], line[1][1]], zs=[line[0][2], line[1][2]])
-            self._circular([40,0,40], 10)
+            #self._circular([40,0,40], 10)
             self.ax.plot([-50., -50.1], [-50., -50.1], zs=[100, 100.1])
             self.ax.plot([50., 50.1], [50., 50.1], zs=[70, 70.1])
 

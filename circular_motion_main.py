@@ -1,4 +1,5 @@
 from robotic_arm import RoverArm
+from robotic_arm import cross, make_unit
 from grapher import Grapher
 from math import cos, sin
 import sys
@@ -36,11 +37,15 @@ def anim():
     lines = to_lines(test.joint_points)
     g.redraw(lines)
 #    sys.stdout.write("\r" + test.return_model())
+    print test.return_model_for_low_level()
     sys.stdout.flush()
 
 test = RoverArm([50, 40, 15])
 test.update_destination_point([40,0,40], [1,0,0])
 lines = to_lines(test.joint_points)
+
+test.establish_serial_connection()
+test.serial_write()
 
 g = Grapher(lines)
 g.redraw(lines)
