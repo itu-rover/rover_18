@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>sick_tim</name>
+  <name>rover_sick_tim</name>
   <version>0.0.12</version>
   <description>
     A ROS driver for the SICK TiM and the SICK MRS 1000 laser scanners.
