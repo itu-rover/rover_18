@@ -2,141 +2,36 @@ import math
 import numpy as np
 from random import randint
 import serial
-
-# NOTE: These functions can be added to a library - optional
-
-# Vectorial Calculations
-def sum_vector(v1, v2):
-    v_t = [0, 0, 0]
-    for i in range(3):
-        v_t[i] = v1[i] + v2[i]
-    return v_t
-def RotZ(point, theta, is_theta_degrees = False):
-    if (is_theta_degrees):
-        theta_in_rad = math.radians(theta)
-    else:
-        theta_in_rad = theta
-
-    rotZ_matrix = [ [math.cos(theta_in_rad), -math.sin(theta_in_rad), 0],
-                    [math.sin(theta_in_rad), math.cos(theta_in_rad), 0],
-                    [0, 0, 1]]
-    result = [0, 0, 0]
-
-    for i in range(0, 3):
-        _sum = 0
-
-        for j in range(0, 3):
-            _sum += point[j] * rotZ_matrix[i][j]
-        result[i] = _sum
-    return result
-def rotation_u(point_to_be_rotated, vector_rotating_around, angles_in_deg):
-    u = vector_rotating_around
-    if length(u) != 1:
-        u = make_unit(u)
-    p = point_to_be_rotated
-    a = math.radians(angles_in_deg) # Convert to radians
-    omc = 1 - math.cos(a)
-
-    matrix = [
-    [(math.cos(a) + u[0] * u[0] * omc), (u[0] * u[1] * omc - u[2] * math.sin(a)), (u[0] * u[2] * omc + u[1] * math.sin(a))],
-    [(u[1] * u[0] * omc + u[2] * math.sin(a)), (math.cos(a) + u[1] * u[1] * omc), (u[1] * u[2] * omc - u[0] * math.sin(a))],
-    [(u[0] * u[2] * omc - u[1] * math.sin(a)), (u[1] * u[2] * omc + u[0] * math.sin(a)), (math.cos(a) + u[2] * u[2] * omc)]
-    ]
-
-    result = [0, 0, 0]
-
-    for i in range(0, 3):
-        _sum = 0
-
-        for j in range(0, 3):
-            _sum += p[j] * matrix[i][j]
-        result[i] = _sum
-
-        # # 0.0001 is the maximum error
-        # if (math.fabs(result[i]) < 0.0001):
-        #     result[i] = 0
-
-    return result
-def cross(a, b):
-    c = [a[1]*b[2] - a[2]*b[1],
-         a[2]*b[0] - a[0]*b[2],
-         a[0]*b[1] - a[1]*b[0]]
-    return c
-def angle(v1, v2, acute = True):
-    angle = np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
-    if (acute == True):
-        return angle
-    else:
-        return 2 * np.pi - angle
-def length(vector):
-    return math.sqrt(math.pow(vector[0], 2) + math.pow(vector[1], 2) + math.pow(vector[2], 2))
-def make_unit(vector):
-    len_v = length(vector)
-    return [vector[0] / len_v, vector[1] / len_v, vector[2] / len_v]
-def scalar_of_vector(vector, scalar):
-    return [vector[0] * scalar, vector[1] * scalar, vector[2] * scalar]
-def subtract(vector1, vector2):
-    return [vector1[0] - vector2[0], vector1[1] - vector2[1], vector1[2] - vector2[2]]
-
-# Triangle Calculations
-def cosine_rule(c, a, b):
-    cos_theta = (-1 * ((c * c) - (b * b) - (a * a))) / (2 * a * b)
-    return math.acos(cos_theta)
-def get_triangle_angles(a, b, c):
-    return [cosine_rule(a, b, c), cosine_rule(b, a, c), cosine_rule(c, a, b)]
-def get_length_from_cos(a, b, theta_in_degrees):
-    theta_rad = math.radians(theta_in_degrees)
-    return math.sqrt(a * a + b * b - 2 * a * b * math.cos(theta_rad))
-
-# Inverse Calculations
-def geometric_approach(lengths, point):
-    dist = length(point)
-    angles = get_triangle_angles(lengths[0], lengths[1], dist)
-    vector_plane_angle = math.asin(point[2] / dist)
-    # To degrees Conversion
-    vector_plane_angle = math.degrees(vector_plane_angle)
-    for i in range(0, 3):
-        angles[i] = math.degrees(angles[i])
-    base_angle = vector_plane_angle + angles[1]
-    joint2_angle = 180 - angles[2]
-    base_rotation = math.degrees(math.atan2(point[1], point[0]))
-    return [base_rotation, base_angle, joint2_angle]
-def is_between(val, min, max):
-    if val >= min and val <= max:
-        return True
-    else:
-        return False
-
-# Low level Conversion
-def to_fixed_size(value, bit_size, is_integer = True):
-    result_string = ""
-    if is_integer:
-        val_int = int(value)
-        conv_string = str(val_int)
-        diff = bit_size - len(conv_string)
-        if diff > 0:
-            for i in range(diff):
-                result_string += "0"
-        result_string += conv_string
-    else:
-        pass
-    return result_string
-
+from vectorial_calculations import *
+from navigation import Navigation
+vz = [0, 0, 0]
 
 class RoverArm(object):
-    def __init__(self, lengths):
+    def __init__(self, lengths, initial=[[40, 0, 20], [1, 0, 0]]):
         self.Lengths = lengths;
-        self.limits = [[-50, 50], [10, 110], [20, 70], [0, 70], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
+        self.limits = [[-50, 50], [10, 110], [10, 160], [0, 360], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
         self.joint_names = ["base_yaw", "base_pitch", "secondary_axis", "gripper_pitch", "gripper_rotation"]
         self.last_point = [0, 0, 0]
-        self.degrees_to_mm = True
+        self.degrees_to_mm = False
         self.actuator_lengths = [29.5, 29.5]
+        self.navigation = Navigation(initial[0], initial[1])
+        self.vectors = [vz, vz, vz]
+        self.joint_angles = [0, 0, 0, 0, 0]
+        self.joint_points = [vz, vz, vz]
+
+        #self.update_destination_point(initial[0], initial[1])
 
     def check_limits(self, _joint_angles):
+        count = 0
         for i in range(0, len(_joint_angles)):
             if not is_between(_joint_angles[i], self.limits[i][0], self.limits[i][1]):
                 print "[ BOUNDS ERROR ] " + self.joint_names[i] + " angle({0}) is outside of bounds: ({1}, {2})".format(_joint_angles[i], self.limits[i][0], self.limits[i][1])
                 # print "[ JOINT STATE CHANGE ] " + self.joint_names[i] + " angle has been changed to: {0}".format(_joint_angles[i])
+                count += 1
+        if count == 0:
+            return True
+        else:
+            return False
 
     def print_cool_words(self):
         random1 = randint(4, 8)
@@ -162,8 +57,12 @@ class RoverArm(object):
         last_angle = 180 - math.degrees(angle(vector, v2))
         first_pair_normal = cross(v2, vector)
         second_pair_normal = cross(v1, v2)
-        add_axis = math.degrees(angle(first_pair_normal, second_pair_normal))
-        self.joint_angles = [geo[0], geo[1], geo[2], last_angle, add_axis]
+        add_axis = 180 - math.degrees(angle(first_pair_normal, second_pair_normal))
+
+        # Check limits
+        if not self.check_limits([geo[0], geo[1], geo[2], last_angle, add_axis]):
+            return
+
         v1 = scalar_of_vector(make_unit(v1), self.Lengths[0])
         v2 = scalar_of_vector(make_unit(v2), self.Lengths[1])
         v3 = scalar_of_vector(vector, self.Lengths[2])
@@ -173,13 +72,25 @@ class RoverArm(object):
         p3 = sum_vector(p2, v3)
         self.joint_points = [p1, p2, p3]
 
+        # Additional axis sign Calculation
+        v_sub = subtract(self.vectors[0], self.vectors[2])
+        v_sub = RotZ(v_sub, -geo[0], True)
+        self.joint_angles = [geo[0], geo[1], geo[2], last_angle, -abs(add_axis)]
+
+        if v_sub[1] >= 0:
+            self.joint_angles = [geo[0], geo[1], geo[2], last_angle, abs(add_axis)]
+        # INFO: self.joint_angles calculations completed
+
+        # Store the angle only calculations
+        self.joint_angle_only = [0, 0, 0, 0, 0]
+        for i in range(0, 5):
+            self.joint_angle_only[i] = self.joint_angles[i]
+
         # degrees to mm Conversion
         if self.degrees_to_mm:
             self.joint_angles[2] = (get_length_from_cos(7.5, 32.7, self.joint_angles[2]) - self.actuator_lengths[1]) * 10
             self.joint_angles[1] = (get_length_from_cos(8.124, 31.8, self.joint_angles[1] + 29.74 - 8.44) - self.actuator_lengths[0]) * 10
-            print self.joint_angles
 
-        self.check_limits(self.joint_angles)
 
         # self.print_cool_words()
         # Calculation of the vectorial speed of joints
@@ -214,6 +125,7 @@ class RoverArm(object):
 
         self.last_point = point
 
+
     def foward_model(self, angles):
         for i in range(1, len(angles) - 1):
             angles[i] = math.radians(angles[i])
@@ -224,7 +136,7 @@ class RoverArm(object):
         p2 = [self.Lengths[1] * math.sin(theta2_prime), 0, -self.Lengths[1] * math.cos(theta2_prime)]
         p2 = sum_vector(p1, p2)
         p3 = [self.Lengths[2] * math.cos(theta4_prime), 0, self.Lengths[2] * math.sin(theta4_prime)]
-        p3 = rotation_u(p3, subtract(p2, p1), -180 + angles[4])
+        p3 = rotation_u(p3, subtract(p2, p1), angles[4])
         p3 = sum_vector(p2, p3)
 
         p1 = rotation_u(p1, [0,0,1], angles[0])
@@ -244,10 +156,10 @@ class RoverArm(object):
     def return_model_for_low_level(self):
         # Start bit initialized
         msg = "S"
-
-        for i in range(1, 4):
+        switch_position_in_array(self.joint_angles, 3, 4)
+        for i in range(0, 5):
             # Axis Number
-            msg += str(i)
+            msg += str(i + 1)
 
             # Axis angle sign 1 for + 0 for -
             if self.joint_angles[i] >= 0:
@@ -256,11 +168,14 @@ class RoverArm(object):
                 msg += "0"
 
             # 3 Bit fixed size message
-            msg += to_fixed_size(self.joint_angles[i], 3)
+            msg += to_fixed_size(abs(self.joint_angles[i]), 3)
+        switch_position_in_array(self.joint_angles, 3, 4)
+
+        # NOTE: 6th axis calculations not completed so adding static value 0
+        msg += "60000"
 
         # Stop Bit
         msg += "F"
-
         return msg
 
     def establish_serial_connection(self):
@@ -282,7 +197,6 @@ class RoverArm(object):
         for i in range(len(string)):
             self.ser.write(string[i])
             self.ser.flush()
-
 
     def print_info(self):
         print "Destination Point: " + str(self.destination_point)
