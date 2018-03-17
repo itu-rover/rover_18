@@ -7,6 +7,7 @@ import time
 controller = PS4Controller(0x046d, 0xc215)
 k = 0.005
 p = [65,0,40]
+
 s = [1, 0, 0]
 lines = []
 
@@ -21,7 +22,7 @@ def to_lines(points):
 
 def anim():
     global controller, lines, p, s, test
-    print length(test.joint_points[1])
+    print test.return_model()
     controller.update()
     p[0] += k * (controller.raw_data[3] - 128)
     p[2] += k * (controller.raw_data[5] - 128) * -1
