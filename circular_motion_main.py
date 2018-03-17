@@ -3,6 +3,8 @@ from robotic_arm import cross, make_unit
 from grapher import Grapher
 from math import cos, sin
 import sys
+import time
+
 
 r = 10
 x = 0.
@@ -29,12 +31,18 @@ def to_lines(points):
 
 def anim():
     global test, lines, p, s, x, y, t, r
+    # time.sleep(0.5)
     t += 0.1
+    lines = []
     updatexy(t)
     p[2] = y + 40
     p[1] = x
     test.update_destination_point(p, s)
     lines = to_lines(test.joint_points)
+    lines2 = to_lines(test.foward_model(test.joint_angle_only))
+
+    for _line in lines2:
+        lines.append(_line)
     g.redraw(lines)
 #    sys.stdout.write("\r" + test.return_model())
     print test.return_model_for_low_level()
@@ -44,8 +52,8 @@ test = RoverArm([50, 40, 15])
 test.update_destination_point([40,0,40], [1,0,0])
 lines = to_lines(test.joint_points)
 
-test.establish_serial_connection()
-test.serial_write()
+# test.establish_serial_connection()
+# test.serial_write()
 
 g = Grapher(lines)
 g.redraw(lines)
