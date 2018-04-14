@@ -6,9 +6,10 @@ from vectorial_calculations import *
 from navigation import Navigation
 vz = [0, 0, 0]
 
+
 class RoverArm(object):
     def __init__(self, lengths, initial=[[40, 0, 20], [1, 0, 0]]):
-        self.Lengths = lengths;
+        self.Lengths = lengths
         self.limits = [[-50, 50], [10, 110], [10, 160], [0, 360], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
         self.joint_names = ["base_yaw", "base_pitch", "secondary_axis", "gripper_pitch", "gripper_rotation"]
         self.last_point = [0, 0, 0]
@@ -19,7 +20,7 @@ class RoverArm(object):
         self.joint_angles = [0, 0, 0, 0, 0]
         self.joint_points = [vz, vz, vz]
 
-        #self.update_destination_point(initial[0], initial[1])
+        # self.update_destination_point(initial[0], initial[1])
 
     def check_limits(self, _joint_angles):
         count = 0

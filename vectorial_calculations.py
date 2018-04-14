@@ -4,12 +4,16 @@ from random import randint
 import serial
 
 # Vectorial Calculations
+
+
 def sum_vector(v1, v2):
     v_t = [0, 0, 0]
     for i in range(3):
         v_t[i] = v1[i] + v2[i]
     return v_t
-def RotZ(point, theta, is_theta_degrees = False):
+
+
+def RotZ(point, theta, is_theta_degrees=False):
     if (is_theta_degrees):
         theta_in_rad = math.radians(theta)
     else:
