@@ -1,0 +1,8 @@
+{
+    "name": "My Map", 
+    "format": "png", 
+    "bounds": "-110.793896504824,38.4057982037259,-110.789776631777,38.4069563198828", 
+    "version": "1", 
+    "type": "baselayer", 
+    "description": "Made with Maperitive"
+}

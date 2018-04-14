@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ROVER UI V1</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="shortcut icon" type="image/x-icon" href="./images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="./css/source-sans-pro.css" />
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/ionicons.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/AdminLTE.min.css" />
+    <link rel="stylesheet" type="text/css" href="./css/_all-skins.css" />
+    <link rel="stylesheet" type="text/css" href="./css/animate.css" />
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
+    <link rel="stylesheet" type="text/css" href="./css/mapstyle.css" />
+    <script type="text/javascript" src="./js/external/mapbox-gl.js"></script>
+    <script type="text/javascript" src="./js/external/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="./js/external/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/external/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="./js/external/roslib.min.js"></script>
+    <script type="text/javascript" src="./js/external/app.min.js"></script>
+    <script type="text/javascript" src="./js/ui-customizations.js"></script>
+    <script type="text/javascript" src="./js/external/gamepad.js"></script>
+    <script type="text/javascript" src="./js/camera_operation.js"></script>
+    <!-- Uncomment below for debugging
+    <script type="text/javascript" src="./js/debug/jquery-2.2.4.js"></script>
+    <script type="text/javascript" src="./js/debug/bootstrap.js" ></script>
+    <script type="text/javascript" src="./js/debug/eventemitter2.js"></script>
+    <script type="text/javascript" src="./js/debug/roslib.js"></script>
+    <script type="text/javascript" src="./js/debug/three.js"></script>
+    <script type="text/javascript" src="./js/debug/STLLoader.js"></script>
+    <script type="text/javascript" src="./js/debug/ros3d.js"></script>
+    <script type="text/javascript" src="./js/debug/app.js"></script>
+    <script type="text/javascript" src="./js/ui-customizations.js"></script>
+    -->
+</head>
+
+<body class="hold-transition skin-real-dark layout-top-nav">
+    <div class="wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-static-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#"><img src="./images/itu_rover_white.png" alt="ITU Rover Team" style="box-sizing: border-box; 
+                                                                                                                         width: 60px"></a>
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                    </div>
+                    <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a>DASHBOARD <span class="sr-only">(current)</span></a></li>
+                            <li><a href="mission-planning.html">PLAN</a></li>
+                            <li><a href="camera_yedek.html" target="_blank" class="active">Camera</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </div>
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <section class="content-header">
+                <h1 style="color:white">ITU ROVER TEAM</h1>
+                <div class="row">
+                    <div class="col-md-12" style="height: 84vh">
+                        <!-- Custom Tabs -->
+                        <div class="nav-tabs-custom" style="height: 100%">
+                            <ul class="nav nav-tabs">
+                                <li class=""><a href="#cam_1" data-toggle="tab" aria-expanded="false">Cam-1</a></li>
+                                <li class="active"><a href="#cam_2" data-toggle="tab" aria-expanded="true">Cam-2</a></li>
+                                <li class=""><a href="#cam_3" data-toggle="tab" aria-expanded="false">Cam-3</a></li>
+                                <li class=""><a href="#cam_4" data-toggle="tab" aria-expanded="false">Cam-4</a></li>
+                                <li class=""><a href="#cam_5" data-toggle="tab" aria-expanded="false">Cam-5</a></li>
+                                <li class="pull-right">
+                                    <button class="text-muted" data-toggle="modal" data-target="#modal-info"><i class="fa fa-gear"></i></button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" style="height: 100%">
+
+                                <!-- /.tab-pane -->
+                                <div class="tab-pane active" id="cam_1" style="height: 100%">
+                                    <iframe id="cam1-port" src="http://108.189.195.118:60001/cgi-bin/snapshot.cgi?chn=0&u=admin&p=&q=0" style="height: 100%; width: 100%"></iframe>
+                                </div>
+                                <div class="tab-pane " id="cam_2" style="height: 100%">
+                                    <iframe id="cam2-port" src="http://108.189.195.118:60001/cgi-bin/snapshot.cgi?chn=0&u=admin&p=&q=0" style="height: 100%; width: 100%"></iframe>
+                                </div>
+                                <div class="tab-pane " id="cam_3" style="height: 100%">
+                                    <iframe id="cam3-port" src="http://108.189.195.118:60001/cgi-bin/snapshot.cgi?chn=0&u=admin&p=&q=0" style="height: 100%; width: 100%"></iframe>
+                                </div>
+                                <div class="tab-pane " id="cam_4" style="height: 100%">
+                                    <iframe id="cam4-port" src="http://108.189.195.118:60001/cgi-bin/snapshot.cgi?chn=0&u=admin&p=&q=0" style="height: 100%; width: 100%"></iframe>
+                                </div>
+                                <div class="tab-pane" id="cam_5" style="height: 100%">
+                                    <iframe id="cam5-port" src="http://108.189.195.118:60001/cgi-bin/snapshot.cgi?chn=0&u=admin&p=&q=0" style="height: 100%; width: 100%"></iframe>
+                                </div>
+                                <!-- /.tab-pane -->
+
+                                <!-- /.tab-pane -->
+                            </div>
+                            <!-- /.tab-content -->
+                        </div>
+                        <!-- nav-tabs-custom -->
+                    </div>
+
+
+                </div>
+
+                <div class="modal modal-info fade" id="modal-info" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title">Define Camera IPs</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="input-group">
+                                    <span class="input-group-addon">http://</span>
+                                    <input type="text" class="form-control" placeholder="camera-1 IP:PORT" id="cam-url-1">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">http://</span>
+                                    <input type="text" class="form-control" placeholder="camera-2 IP:PORT" id="cam-url-2">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">http://</span>
+                                    <input type="text" class="form-control" placeholder="camera-3 IP:PORT" id="cam-url-3">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">http://</span>
+                                    <input type="text" class="form-control" placeholder="camera-4 IP:PORT" id="cam-url-4">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">http://</span>
+                                    <input type="text" class="form-control" placeholder="camera-5 IP:PORT" id="cam-url-5">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-outline" id="set-cam-ip">Save changes</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
