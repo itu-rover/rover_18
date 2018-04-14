@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Run the navsat transform node for current gps point-->
+ <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_current_gps" respawn="true"  >
+     
+      <param name="yaw_offset" value="0"/> #-1.8316
+      <param name="magnetic_declination_radians" value="0.095644043"/> #0.095644043
+      <remap from="/imu/data" to="/imu/data" />
+        <param name="broadcast_utm_transform" value="true"/> 
+  </node>
+
+<node name="base_link_to_laser"
+			pkg="tf" type="static_transform_publisher" 
+			args="0.4 0.3 0.0 0.0 0.0 0.0 base_link laser 20" />
+<node name="base_link_to_gps"
+			pkg="tf" type="static_transform_publisher" 
+			args="0.4 -0.3 0.0 0.0 0.0 0.0 base_link gps_link 20" />
+</launch>

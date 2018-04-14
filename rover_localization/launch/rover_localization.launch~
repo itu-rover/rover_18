@@ -18,7 +18,7 @@
 
   <!-- Run the ekf localization node -->
 
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_global">
+  <!--node pkg="robot_localization" type="ekf_localization_node" name="ekf_global">
 
   <rosparam command="load" file="$(find rover_localization)/config/global_localization.yaml" />
     <remap from="odometry/filtered" to="/odometry/global"/>
@@ -29,14 +29,14 @@
 
   <rosparam command="load" file="$(find rover_localization)/config/local_localization.yaml" />
      <remap from="odometry/filtered" to="/odometry/local"/>
-  </node>
+  </node-->
 
 
-<!--node pkg="robot_localization" type="ekf_localization_node" name="ekf_1">
+<node pkg="robot_localization" type="ekf_localization_node" name="ekf_1">
 
   <rosparam command="load" file="$(find rover_localization)/config/rover_localization.yaml" />
 
-  </node-->
+  </node>
 
 
 
