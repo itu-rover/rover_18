@@ -11,4 +11,3 @@ ITU Rover Team
       rover_sick_tim: Sick MRS1000 package
       rover_ui: rover web user interface files
       rover_waypoint_nav: gps waypoint handler 
-      rover_navsat_driver: ITU GPS package
