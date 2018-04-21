@@ -7,12 +7,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <robot_localization/navsat_conversions.h>
 #include <geometry_msgs/PointStamped.h>
-#include <navsat_msgs/NavSatFix.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <std_msgs/Bool.h>
 #include <tf/transform_listener.h>
 #include <math.h>
-
-
 
 
 // initialize variables
@@ -20,65 +18,12 @@
 typedef actionlib::SimpleActionClient <move_base_msgs::MoveBaseAction>
 MoveBaseClient; //create a type definition for a client called MoveBaseClient
 
-std::vector <std::pair<double, double>> waypointVect;
-std::vector<std::pair < double, double> > ::iterator iter; //init. iterator
 geometry_msgs::PointStamped UTM_point, map_point, UTM_next, map_next;
-int count = 0, waypointCount = 0, wait_count = 0;
-double numWaypoints = 0;
-double latiGoal, longiGoal, latiNext, longiNext;
-double latiG, longiG, latiN, longiN;
+int count = 0, wait_count = 0;
+double latiG, longG, latiC, longC;
 std::string utm_zone;
 std::string path_local, path_abs;
 bool flag = false; // flag for activate waypoint handler
-
-int countWaypointsInFile(std::string path_local)
-{
-    path_abs = ros::package::getPath("outdoor_waypoint_nav") + path_local;
-    std::ifstream fileCount(path_abs.c_str());
-    if(fileCount.is_open())
-    {
-        double lati = 0;
-        while(!fileCount.eof())
-        {
-            fileCount >> lati;
-            ++count;
-        }
-        count = count - 1;
-        numWaypoints = count / 2;
-        ROS_INFO("%.0f GPS waypoints were read", numWaypoints);
-        fileCount.close();
-    }
-    else
-    {
-        std::cout << "Unable to open waypoint file" << std::endl;
-        ROS_ERROR("Unable to open waypoint file");
-    }
-    return numWaypoints;
-}
-
-std::vector <std::pair<double, double>> getWaypoints(std::string path_local)
-{
-    double lati = 0, longi = 0;
-
-    path_abs = ros::package::getPath("outdoor_waypoint_nav") + path_local;
-    std::ifstream fileRead(path_abs.c_str());
-    for(int i = 0; i < numWaypoints; i++)
-    {
-        fileRead >> lati;
-        fileRead >> longi;
-        waypointVect.push_back(std::make_pair(lati, longi));
-    }
-    fileRead.close();
-
-    //Outputting vector
-    ROS_INFO("The following GPS Waypoints have been set:");
-    for(std::vector < std::pair < double, double >> ::iterator iterDisp = waypointVect.begin(); iterDisp != waypointVect.end();
-    iterDisp++)
-    {
-        ROS_INFO("%.9g %.9g", iterDisp->first, iterDisp->second);
-    }
-    return waypointVect;
-}
 
 geometry_msgs::PointStamped latLongtoUTM(double lati_input, double longi_input)
 {
@@ -132,8 +77,8 @@ move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped map_point, ge
     goal.target_pose.header.stamp = ros::Time::now();
 
     // Specify x and y goal
-    goal.target_pose.pose.position.x = map_point.point.x; //specify x goal
-    goal.target_pose.pose.position.y = map_point.point.y; //specify y goal
+    goal.target_pose.pose.position.x = map_next.point.x; //specify x goal !!changed to map_next from map_point
+    goal.target_pose.pose.position.y = map_next.point.y; //specify y goal
 
     // Specify heading goal using current goal and next goal (point robot towards its next goal once it has achieved its current goal)
    
@@ -163,18 +108,28 @@ move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped map_point, ge
 void targetCallback (sensor_msgs::NavSatFix target)
 {
     //Gönderilen hedef koordinatları al. lat=long long=lat
+    //check the message
+    if (latiG != target.longitude)
+    {
+        latiG=target.longitude;
+        longG=target.latitude;
 
-    latiG=target.longitude;
-    longG=target.latitude;
+        ROS_INFO("I got new target points");
 
-    flag = true;
+        flag = true;
+    
+        ROS_INFO("flag is :%s", flag?"true":"false");
+    }
+
 }
 
 void currentCallback (sensor_msgs::NavSatFix current)
 {
 
     longC=current.longitude;
-    latC=current.Latitude;
+    latiC=current.latitude;
+
+    //ROS_INFO("I got to current points");
 }
 
 
@@ -185,13 +140,15 @@ int main(int argc, char** argv)
     ROS_INFO("Initiated gps_waypoint node");
     MoveBaseClient ac("/move_base", true);
     //construct an action client that we use to communication with the action named move_base.
-    //Setting true is telling the constructor to start ros::spin()
 
-    // Initiate publisher to send end of node message
-    ros::Publisher pubWaypointNodeEnded = n.advertise<std_msgs::Bool>("/outdoor_waypoint_nav/waypoint_following_status", 100);
+    //ros::Publisher pubWaypointNodeEnded = n.advertise<std_msgs::Bool>("/outdoor_waypoint_nav/waypoint_following_status", 100);
+    // arayüzü için üstteki yapıya benzer mantıkla mesaj atılabilir.
 
-    ros::Subscriber sub = n.subscribe("/target/gpscoordinate", 10, targetCallback);
-    ros::Subscriber sub = n.subscribe("/gps/fix", 10, currentCallback);
+    //Initiate subscribers
+    ros::Subscriber sub = n.subscribe("/rover_gps/waypoint", 10, targetCallback);
+    ros::Subscriber sub1 = n.subscribe("/gps/fix", 10, currentCallback);
+
+    ROS_INFO("Initiated gps_waypoint Subscribers");
 
     //wait for the action server to come up
     while(!ac.waitForServer(ros::Duration(5.0)))
@@ -203,19 +160,17 @@ int main(int argc, char** argv)
             // Notify joy_launch_control that waypoint following is complete
             std_msgs::Bool node_ended;
             node_ended.data = true;
-            pubWaypointNodeEnded.publish(node_ended);
+            //pubWaypointNodeEnded.publish(node_ended);
             ros::shutdown();
         }
         ROS_INFO("Waiting for the move_base action server to come up");
     }
 
-    ros::Rate r(10); // 10 hz
+    ros::Rate r(1); // 1 hz
 
-    //Reading waypoints from text file and output results
-    waypointVect = getWaypoints(path_local);
-    while(1)
+    while(ros::ok())
     {
-        if (flag = true)
+        if (flag == true)
         {       
             ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
             ROS_INFO("Received goal coordinates latitude:%.8f, longitude:%.8f", latiG, longG);
@@ -236,6 +191,7 @@ int main(int argc, char** argv)
             ac.sendGoal(goal); //push goal to move_base node
 
             //Wait for result //TODO: bizim hedef değişken olacağı için beklemiyoruz.
+            //ROS_INFO("Wait for result");
             //ac.waitForResult(); //waiting to see if move_base was able to reach goal
 
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -245,14 +201,14 @@ int main(int argc, char** argv)
             }
             else
             {
-                ROS_ERROR("Rover was unable to reach its goal. GPS Waypoint unreachable.\n");
+                ROS_WARN("All is Well\n");
             }
-
-            flag = false;
             
-            ros::spinOnce();
-            r.sleep();
+            flag = false;
+            ROS_INFO("flag is :%s", flag?"true":"false");
         }
+        r.sleep();
+        ros::spinOnce();
     }
     
 

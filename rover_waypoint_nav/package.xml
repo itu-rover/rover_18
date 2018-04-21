@@ -13,12 +13,17 @@
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>roslaunch</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>rover_state_mach</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>hector_mapping_nav</run_depend>
   <run_depend>husky_control</run_depend>
   <run_depend>husky_customization</run_depend>
+  <run_depend>rover_state_mach</run_depend>
+  <run_depend>message_runtime</run_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
