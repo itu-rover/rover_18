@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rover_sick_tim)
+project(sick_tim)
 
 find_package(catkin REQUIRED
     COMPONENTS
