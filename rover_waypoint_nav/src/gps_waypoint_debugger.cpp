@@ -11,6 +11,7 @@
 #include <std_msgs/Bool.h>
 #include <tf/transform_listener.h>
 #include <math.h>
+#include <stdlib.h>
 
 
 // initialize variables
@@ -24,7 +25,6 @@ double latiG, longG, latiC, longC;
 std::string utm_zone;
 std::string path_local, path_abs;
 bool flag = false; // flag for activate waypoint handler
-bool debug_mode;
 
 geometry_msgs::PointStamped latLongtoUTM(double lati_input, double longi_input)
 {
@@ -133,26 +133,17 @@ void currentCallback (sensor_msgs::NavSatFix current)
     //ROS_INFO("I got to current points");
 }
 
-float calculateError()
-{
-    //Get current map points
-    UTM_point = latLongtoUTM(latiC, longC);
-    map_point = UTMtoMapPoint(UTM_point);
-    float error = sqrt((map_next.point.x-map_point.point.x)+(map_next.point.y-map_point.point.y));    
-    return error;
-}
-
 void writerResult(std::string path_to_result_file, float err)
 {
     // Open file
-    std::ofstream resultFile;
+    std::ofstream resultFile:
     resultFile.open (path_to_result_file.c_str(),std::ios::app);
     
     // Write to file
-    resultFile << "Error: "<< err << "Target:" << longG <<","<<latiG << "Curent:" << longC << "," << latiC << std::endl;
+    resultFile << "Error: "<< err << "Target:" << longG <<","<<latig << "Curent:" << longC << "," << latiC << std::endl;
 
     // Close file
-    resultFile.close();
+    paramsFile.close();
 }
 
 
@@ -215,22 +206,18 @@ int main(int argc, char** argv)
             ROS_INFO("Sending goal");
             ac.sendGoal(goal); //push goal to move_base node
 
-            //Wait for result //TODO: bizim hedef değişken olacağı için beklemiyoruz.
+            //Wait for result 
             ROS_INFO("Wait for result");
             ac.waitForResult(); //waiting to see if move_base was able to reach goal
 
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
             {
-                ROS_INFO("Rover has reached its goal!");
+                ROS_INFO("Rover has reached its goal!\n");
                 float error = calculateError();
                 ROS_INFO("Rover has reached its goal! with error: %f",error);
-                
-                if (debug_mode == true)
-                {
-                    std::string path =  ros::package::getPath("outdoor_waypoint_nav") + "/params/results.txt";
-                    ROS_INFO("Writing results to file...");
-                    writerResult(path, error);
-                }
+                std::string path =  ros::package::getPath("outdoor_waypoint_nav") + "/params/results.txt";
+                ROS_INFO("Writing results to file...");
+                writerResult(path, error);
             }
             else
             {
