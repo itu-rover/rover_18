@@ -1,0 +1,7 @@
+<launch>
+    <arg name="logoutput" default="screen"/>
+    <rosparam command="delete" param="/RoverReachImage" />
+    <rosparam command="load" file="$(find rover_image)/config/reach_image.yaml" />
+    <node name="rover_detect_live" pkg="rover_image" type="rover_detect_live.py" output="$(arg logoutput)"/>
+    <node name="bearing" pkg="rover_image" type="bearing.py" output="$(arg logoutput)"/>
+</launch>

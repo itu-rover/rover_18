@@ -1,0 +1,11 @@
+RoverReachImage:
+    ImageProcessing:
+        sub_image: '/zed/left/image_rect_color'
+        pub_pxCoordinates: '/px_coordinates'
+        
+
+    CalculateBearing:
+        sub_pxCoordinates: '/px_coordinates'
+        pub_bearing: '/bearing_to_ball'
+        camAngleOfView: 110
+        forwardRate: 10.7
