@@ -138,7 +138,8 @@ float calculateError()
     //Get current map points
     UTM_point = latLongtoUTM(latiC, longC);
     map_point = UTMtoMapPoint(UTM_point);
-    float error = sqrt((map_next.point.x-map_point.point.x)+(map_next.point.y-map_point.point.y));    
+    float error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
     return error;
 }
 
@@ -149,7 +150,8 @@ void writerResult(std::string path_to_result_file, float err)
     resultFile.open (path_to_result_file.c_str(),std::ios::app);
     
     // Write to file
-    resultFile << "Error: "<< err << "Target:" << longG <<","<<latiG << "Curent:" << longC << "," << latiC << std::endl;
+    resultFile << "Error: "<< err << " Target:" << std::fixed <<longG <<"," << std::fixed << latiG << "Curent:" << std::fixed 
+        << longC << "," << std::fixed << latiC << std::endl;
 
     // Close file
     resultFile.close();
@@ -222,6 +224,7 @@ int main(int argc, char** argv)
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
             {
                 ROS_INFO("Rover has reached its goal!");
+                ros::spinOnce();
                 float error = calculateError();
                 ROS_INFO("Rover has reached its goal! with error: %f",error);
                 
@@ -230,6 +233,18 @@ int main(int argc, char** argv)
                     std::string path =  ros::package::getPath("outdoor_waypoint_nav") + "/params/results.txt";
                     ROS_INFO("Writing results to file...");
                     writerResult(path, error);
+                }
+                if (error >= 4)
+                {
+                    //Build goal to send to move_base
+                    move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                    // Send Goal
+                    ROS_INFO("Errro bigger than 4m, goal has sended again");
+                    ac.sendGoal(goal); //push goal to move_base node
+
+                    ROS_INFO("Wait for result");
+                    ac.waitForResult();
                 }
             }
             else
