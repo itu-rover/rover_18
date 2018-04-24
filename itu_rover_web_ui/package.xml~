@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>rover_ui</name>
+  <name>itu_rover_web_ui</name>
   <version>0.0.0</version>
   <description>The itu_rover_web_ui package</description>
 
