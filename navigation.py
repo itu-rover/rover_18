@@ -47,3 +47,13 @@ class Navigation(object):
 
         # Add the vector to the position to get moved in the approaching vector's direction
         self.position = v_calc.sum_vector(self.position, vector_temp)
+
+    def rotate_yaw(self, up_down_directional_vector, rotate_degrees):
+        v_temp = self.vector
+        v_temp = v_calc.rotation_u(v_temp, up_down_directional_vector, -rotate_degrees)
+        self.vector = v_temp
+
+    def rotate_pitch(self, r_l_directional_vector, rotate_degrees):
+        v_temp = self.vector
+        v_temp = v_calc.rotation_u(v_temp, r_l_directional_vector, rotate_degrees)
+        self.vector = v_temp
