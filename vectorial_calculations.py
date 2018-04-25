@@ -19,9 +19,9 @@ def RotZ(point, theta, is_theta_degrees=False):
     else:
         theta_in_rad = theta
 
-    rotZ_matrix = [ [math.cos(theta_in_rad), -math.sin(theta_in_rad), 0],
-                    [math.sin(theta_in_rad), math.cos(theta_in_rad), 0],
-                    [0, 0, 1]]
+    rotZ_matrix = [[math.cos(theta_in_rad), -math.sin(theta_in_rad), 0],
+                   [math.sin(theta_in_rad), math.cos(theta_in_rad), 0],
+                   [0, 0, 1]]
     result = [0, 0, 0]
 
     for i in range(0, 3):
