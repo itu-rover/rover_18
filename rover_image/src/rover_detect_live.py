@@ -60,10 +60,14 @@ def imageCallback(data):
 				(0, 255, 255), 2)
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-
 			frameHeight = frame.shape[0]
 			frameWidth = frame.shape[1]
 			coordinatePublisher.publish(str(x) +","+ str(y) + "," + str(frameWidth) + "," + str(frameHeight))
+	else:
+
+		coordinatePublisher.publish("-")
+
+			
 
 
 	cv2.imshow("Frame", frame)

@@ -48,19 +48,24 @@ var carbon_data;
 
 var baro_data;
 
+
+
+var longitude;
+
+
 var data_metane = [56, 0, 78, 0, 0, 0, 0, 0];
 var data_carbon = [0, 90, 0, 0, 0, 112, 0, 0];
-var data_hum = [0, 0, 0, 45, 0, 0,0, 0];
+var data_hum = [0, 0, 0, 45, 0, 0, 0, 0];
 var data_temp = [0, 87, 0, 0, 0, 75, 0, 0];
 var data_baro = [0, 0, 66, 0, 0, 0, 0, 90];
 var data_etanol = [0, 0, 34, 0, 0, 56, 0, 0];
 
-var dps_metane=[];
-var dps_carbon=[];
-var dps_hum=[];
-var dps_temp=[];
-var dps_baro=[];
-var dps_etanol=[];
+var dps_metane = [];
+var dps_carbon = [];
+var dps_hum = [];
+var dps_temp = [];
+var dps_baro = [];
+var dps_etanol = [];
 
 //for (var i = 0, t = 100; i < t; i++) {
 //    data.push(Math.round(Math.random() * 99))
@@ -134,7 +139,7 @@ function initPublishers() {
 
 
 function initSubscribers() {
-    alert("sddghgsdffg")
+   
     ////Define subscribers
 
     var humidty_listener = new ROSLIB.Topic({
@@ -323,14 +328,15 @@ var chart = new CanvasJS.Chart("chartContainer1", {
 
 
 );
-      function toggleDataSeries(e) {
-        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-            e.dataSeries.visible = false;
-        } else {
-            e.dataSeries.visible = true;
-        }
-        chart.render();
+
+function toggleDataSeries(e) {
+    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+    } else {
+        e.dataSeries.visible = true;
     }
+    chart.render();
+}
 
 //chart.render();
 var xVal = 1;
@@ -372,7 +378,7 @@ var updateChart = function () {
     yVal++;
     xVal++;
 
-  
+
     chart.render();
 
 
@@ -380,8 +386,43 @@ var updateChart = function () {
     // update chart after specified time. 
 
 };
-updateChart(100);	
-setInterval(function(){updateChart()}, updateInterval);
+updateChart(100);
+setInterval(function () {
+    updateChart()
+}, updateInterval);
+
+
+function converter(){
+   var degree = document.getElementById('deg').value;
+   var minute = document.getElementById('min').value;
+   var second = document.getElementById('sec').value;
+    var longitude_i = document.getElementById('long').value;
+    
+
+    //alert(degree);
+    longitude = parseFloat(degree) + parseFloat(minute/60) + parseFloat(second/3600);
+    document.getElementById("outputLong").innerHTML=longitude;
+    //alert(longitude);
+    
+    long_deg = Math.floor(longitude_i);
+    document.getElementById("outputDeg").innerHTML=long_deg;
+    
+     long_min_i = 60 * (longitude_i-long_deg);
+    
+    long_min = Math.floor(long_min_i);
+    
+    
+    document.getElementById("outputMin").innerHTML=long_min;
+     
+    long_sec = 60*(long_min_i - long_min);
+    
+    document.getElementById("outputSec").innerHTML=long_sec;
+    
+    
+    
+     
+    
+}
 
 
 
@@ -561,10 +602,20 @@ gamepad.bind(Gamepad.Event.AXIS_CHANGED, function (e) {
 
 
 
-//TODO Add marker arrays
+//Halo taha
+//nasılsın knk.d.d.d
+//Isparta Türkiyenin New York'dur
+
+
+// sdasasdasdasda
+// ben bilmirem aybalam 
+// asdasdasda
+// adsasasdads
+
+
 //TODO Add list items and connect them to markers
 //TODO Align the map and the info box - look at the columns
 //TODO Draw linestrings in between the markers
 //TODO Find a way to store array elements and save them into a file within the server
-//when it is submitted
+
 //TODO Make the waypoint markers draggable

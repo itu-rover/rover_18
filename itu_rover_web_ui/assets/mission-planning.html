@@ -35,8 +35,8 @@
                         <ul class="nav navbar-nav">
                             <li><a href="index.html">DASHBOARD</a> </li>
                             <li class="active"><a>PLAN <span class="sr-only">(current)</span></a></li>
-                            
-                             <li><a href="camera_yedek.html">Camera</a></li>
+
+                            <li><a href="camera_yedek.html">Camera</a></li>
                         </ul>
                     </div>
                 </div>
@@ -110,10 +110,75 @@
                         <br>
 
                     </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4 pull-left">
+                        <div class="box box-info bg-gray " id="convert_section">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Converter</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn open.btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+                                </div>
+                            </div>
+                            <!-- /.box-header -->
+                            <!-- form start -->
+                            <form class="form-horizontal">
+                                <div class="box-body" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">Degrees</label>
 
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="deg" placeholder="Degrees">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-2 control-label">Minutes</label>
+
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="min" placeholder="Minutes">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">Seconds</label>
+
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="sec" placeholder="Seconds">
+                                        </div>
+                                    </div>
+
+
+                                    <!-- /.box-body -->
+                                    <div class="box-footer bg-gray">
+
+                                        <input type="button" value="convert" onclick="converter()" id="convert" class="btn btn-info pull-right bg-red" onload="longitude" />
+                                        <p>Longitude/Latitude: <span id="outputLong"></span></p>
+
+                                        <div class="form-group">
+                                            <label for="inputPassword3" class="col-sm-2 control-label">Longitude <br>
+                                                            /Latitude</label>
+
+                                            <div class="col-sm-10">
+                                                <input type="number" class="form-control" id="long" placeholder="Longitude">
+                                                <p>degree: <span id="outputDeg"></span>
+                                                    <p>minute: <span id="outputMin"></span></p>
+                                                    <p>second: <span id="outputSec"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+
+
+                        </div>
+
+                    </div>
                 </div>
+
             </section>
+
         </div>
+
+
 
     </div>
     <script type="text/javascript" src="./js/external/jquery-2.2.4.min.js"></script>

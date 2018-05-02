@@ -138,6 +138,10 @@ float calculateError()
     //Get current map points
     UTM_point = latLongtoUTM(latiC, longC);
     map_point = UTMtoMapPoint(UTM_point);
+
+    UTM_next = latLongtoUTM(latiG, longG);
+    map_next = UTMtoMapPoint(UTM_next);
+
     float error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
         +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
     return error;
@@ -150,8 +154,8 @@ void writerResult(std::string path_to_result_file, float err)
     resultFile.open (path_to_result_file.c_str(),std::ios::app);
     
     // Write to file
-    resultFile << "Error: "<< err << " Target:" << std::fixed <<longG <<"," << std::fixed << latiG << "Curent:" << std::fixed 
-        << longC << "," << std::fixed << latiC << std::endl;
+    resultFile << "Error: "<< err << " Target: " << std::fixed << latiG <<", " << std::fixed << longG << " Curent: " << std::fixed 
+        << latiC << ", " << std::fixed << longC << std::endl;
 
     // Close file
     resultFile.close();
@@ -193,7 +197,7 @@ int main(int argc, char** argv)
         ROS_INFO("Waiting for the move_base action server to come up");
     }
 
-    ros::Rate r(1); // 1 hz
+    ros::Rate r(2); // 2 hz
 
     while(ros::ok())
     {
@@ -217,40 +221,89 @@ int main(int argc, char** argv)
             ROS_INFO("Sending goal");
             ac.sendGoal(goal); //push goal to move_base node
 
-            //Wait for result //TODO: bizim hedef değişken olacağı için beklemiyoruz.
-            ROS_INFO("Wait for result");
-            ac.waitForResult(); //waiting to see if move_base was able to reach goal
+            float error = 2;
 
+            while(error >=1)
+            {
+                ac.waitForResult(ros::Duration(10));
+                ros::spinOnce();
+                error = calculateError(); 
+
+                if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                {
+                    ROS_INFO("Rover has reached its goal! with error: %f m",error); 
+                    if (error <= 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                        // Send Goal
+                        ROS_INFO("Goal calculated");
+                        ac.sendGoal(goal);
+                        ROS_INFO("Goal has sended"); 
+
+                    }
+                }//TODo: if error less than 20 meters wait less time
+                else
+                {
+                    ROS_INFO("Wait 40 seconds");
+                    ros::Duration(40).sleep();
+                    ros::spinOnce();
+                    error = calculateError();
+                    ROS_INFO("Rover has not reached its goal! actual error is: %f m",error);
+
+                    goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                    // Send Goal
+                    ROS_INFO("Goal calculated");
+                    ac.sendGoal(goal);
+                    ROS_INFO("Goal has sended"); 
+                }
+            }         
+/*
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
             {
                 ROS_INFO("Rover has reached its goal!");
                 ros::spinOnce();
-                float error = calculateError();
+                error = calculateError();
                 ROS_INFO("Rover has reached its goal! with error: %f",error);
+
                 
                 if (debug_mode == true)
                 {
-                    std::string path =  ros::package::getPath("outdoor_waypoint_nav") + "/params/results.txt";
+                    std::string path =  ros::package::getPath("rover_waypoint_nav") + "/params/results.txt";
                     ROS_INFO("Writing results to file...");
+                    ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
                     writerResult(path, error);
                 }
-                if (error >= 4)
+                while (error >= 4)
                 {
+                    ros::spinOnce();
+
+                    UTM_point = latLongtoUTM(latiC, longC);
+                    map_point = UTMtoMapPoint(UTM_point);
+
+                    UTM_next = latLongtoUTM(latiG, longG);
+                    map_next = UTMtoMapPoint(UTM_next);
                     //Build goal to send to move_base
                     move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
 
                     // Send Goal
-                    ROS_INFO("Errro bigger than 4m, goal has sended again");
+                    ROS_INFO("Error bigger than 4m, goal has sended again");
                     ac.sendGoal(goal); //push goal to move_base node
 
                     ROS_INFO("Wait for result");
                     ac.waitForResult();
+                    error = calculateError();
                 }
             }
             else
             {
                 ROS_WARN("All is Well\n");
-            }
+            }*/
             
             flag = false;
             ROS_INFO("flag is :%s", flag?"true":"false");

@@ -42,7 +42,7 @@ private:
 
 public:
   	GpsWaypoint() : ac("move_base", true),
-  				sm_pub(gw_nh.advertise<std_msgs::String>("/gps_waypoint_handler/status", 10)), //TODO: convert to actual topic and type
+  				sm_pub(gw_nh.advertise<std_msgs::String>("/gps_waypoint_handler/status", 10)), 
   				sm_sub(gw_nh.subscribe<rover_state_mach::RoverStateMsg>("/rover_state_topic",10, &GpsWaypoint::stateMachineCB, this)), //TODO:  convert to state machine msgs type and topic
   				tg_sub(gw_nh.subscribe<sensor_msgs::NavSatFix>("/rover_gps/waypoint", 10, &GpsWaypoint::targetPointCB, this)),
   				cg_sub(gw_nh.subscribe<sensor_msgs::NavSatFix>("/gps/fix", 10, &GpsWaypoint::currentPointCB, this)),

@@ -25,6 +25,7 @@
     <script type="text/javascript" src="./js/ui-customizations.js"></script>
     <script type="text/javascript" src="./js/external/gamepad.js"></script>
     <script type="text/javascript" src="./js/external/canvasjs.min.js"></script>
+    <script type="text/javascript" src="./js/external/geopoint.js"></script>
 
 
 
@@ -78,7 +79,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div id="boxState" class="info-box bg-gray collapsed-box">
                                     <span class="info-box-icon">
-                                        <i class="fa fa-heartbeat"></i>
+                                        <i class="fa  fa-line-chart"></i>
                                     </span>
                                     <div class="info-box-content bg-gray">
                                         <span class="info-box-text">state</span>
@@ -91,8 +92,8 @@
 
                                         <table class="table table-striped table-hover bg-gray no-margin">
 
-                                           <div id="chartContainer1" style="height: 251px; width: 100%; " width="514" height="251"></div>
-                                           
+                                            <div id="chartContainer1" style="height: 251px; width: 100%; " width="514" height="251"></div>
+
                                         </table>
                                     </div>
                                 </div>
@@ -280,9 +281,112 @@
                                 <div>
                                 </div>
                             </div>
-
                         </div>
-                        <div id="chartContainer2" style="width: 100%; height: 300px;display: inline-block;"></div>
+
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div id="boxState" class="info-box bg-gray collapsed-box">
+                                <span class="info-box-icon">
+                                        <i class="fa  fa-arrows"></i>
+                                    </span>
+                                <div class="info-box-content bg-gray">
+                                    <span class="info-box-text">state</span>
+                                    <span class="info-box-number" id="txtState">Control Board</span>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-sm btn-info-box" data-widget="collapse-detail">Details: <i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="info-box-detail no-padding bg-gray">
+
+                                    <table class="table table-striped table-hover bg-gray no-margin">
+                                        <div style="text-align:center;width:320px;">
+                                            <button type="button" class="fa fa-arrow-up" ontouchstart="moveup()" onmousedown="moveup()" onmouseup="clearmove()"></button><br><br>
+                                            <button type="button" class="fa fa-arrow-left" ontouchstart="moveleft()" onmousedown="moveleft()" onmouseup="clearmove()"></button>
+                                            <i class="fa fa-arrows"></i>
+                                            <button type="button" class=" fa fa-arrow-right" ontouchstart="moveright()" onmousedown="moveright()" onmouseup="clearmove()"></button><br><br>
+                                            <button type="button" class="fa fa-arrow-down" ontouchstart="movedown()" onmousedown="movedown()" onmouseup="clearmove()"></button>
+                                        </div>
+
+
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div id="boxState" class="info-box bg-gray collapsed-box">
+                                <span class="info-box-icon">
+                                        <i class="fa  fa-arrows"></i>
+                                    </span>
+                                <div class="info-box-content bg-gray">
+                                    <span class="info-box-text">state</span>
+                                    <span class="info-box-number" id="txtState">Converter</span>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-sm btn-info-box" data-widget="collapse-detail">Details: <i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="info-box-detail no-padding bg-gray">
+
+                                    <table class="table table-striped table-hover bg-gray no-margin">
+                                        <div class="box box-info">
+                                            <div class="box-header with-border">
+                                                <h3 class="box-title">Converter</h3>
+                                            </div>
+                                            <!-- /.box-header -->
+                                            <!-- form start -->
+                                            <form class="form-horizontal">
+                                                <div class="box-body">
+                                                    <div class="form-group">
+                                                        <label for="inputEmail3" class="col-sm-2 control-label">Degrees</label>
+
+                                                        <div class="col-sm-10">
+                                                            <input type="number" class="form-control" id="deg" placeholder="Degrees">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="inputPassword3" class="col-sm-2 control-label">Minutes</label>
+
+                                                        <div class="col-sm-10">
+                                                            <input type="number" class="form-control" id="min" placeholder="Minutes">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="inputEmail3" class="col-sm-2 control-label">Seconds</label>
+
+                                                        <div class="col-sm-10">
+                                                            <input type="number" class="form-control" id="sec" placeholder="Seconds">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <!-- /.box-body -->
+                                                <div class="box-footer">
+
+                                                    <input type="button" value = "convert" onclick="converter()" class="btn btn-info pull-right"  onload="longitude" />
+                                                    <p>Longitude/Latitude: <span id="outputLong"></span></p>
+                                               
+                                                <div class="form-group">
+                                                        <label for="inputPassword3" class="col-sm-2 control-label">Longitude <br>
+                                                            /Latitude</label>
+
+                                                        <div class="col-sm-10">
+                                                            <input type="number" class="form-control" id="long" placeholder="Longitude">
+                                                            <p>degree: <span id="outputDeg"></span>
+                                                            <p>minute: <span id="outputMin"></span></p>
+                                                            <p>second: <span id="outputSec"></span>
+                                                        </div>
+                                                    </div>
+                                                     </div>
+                                                
+                                             
+                                            </form>
+                                        </div>
+                                        
+ 	
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                     <!-- map field -->
@@ -295,7 +399,6 @@
             </section>
         </div>
     </div>
-
 
 
     <script src="./js/dashboard_map.js" type="application/javascript"></script>

@@ -11,7 +11,6 @@
 #include <std_msgs/Bool.h>
 #include <tf/transform_listener.h>
 #include <math.h>
-#include <stdlib.h>
 
 
 // initialize variables
@@ -21,10 +20,11 @@ MoveBaseClient; //create a type definition for a client called MoveBaseClient
 
 geometry_msgs::PointStamped UTM_point, map_point, UTM_next, map_next;
 int count = 0, wait_count = 0;
-double latiG, longG, latiC, longC;
+double latiG, longG, latiC, longC, latiD, longD;
 std::string utm_zone;
 std::string path_local, path_abs;
 bool flag = false; // flag for activate waypoint handler
+bool debug_mode;
 
 geometry_msgs::PointStamped latLongtoUTM(double lati_input, double longi_input)
 {
@@ -67,6 +67,43 @@ geometry_msgs::PointStamped UTMtoMapPoint(geometry_msgs::PointStamped UTM_input)
         }
     }
     return map_point_output;
+}
+
+geometry_msgs::PointStamped MapPointtoUTM(geometry_msgs::PointStamped map_point_input)
+{
+    geometry_msgs::PointStamped UTM_output;
+    bool notDone = true;
+    tf::TransformListener listener; //create transformlistener object called listener
+    ros::Time time_now = ros::Time::now();
+    while(notDone)
+    {
+        try
+        {
+            UTM_point.header.stamp = ros::Time::now();
+            listener.waitForTransform("utm", "odom", time_now, ros::Duration(3.0));
+            listener.transformPoint("utm", map_point_input, UTM_output);
+            notDone = false;
+        }
+        catch (tf::TransformException& ex)
+        {
+            ROS_WARN("%s", ex.what());
+            ros::Duration(0.01).sleep();
+            //return;
+        }
+    }
+    return UTM_output;
+}
+
+void UTMtolatlong(geometry_msgs::PointStamped UTM_input)
+{
+    double utm_x = 0, utm_y = 0;
+    utm_x = UTM_input.point.x;
+    utm_y = UTM_input.point.y;
+
+    //convert lat/long to utm
+    RobotLocalization::NavsatConversions::UTMtoLL(utm_y, utm_x, utm_zone, latiD, longD);
+
+    return;
 }
 
 move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped map_next)
@@ -133,17 +170,32 @@ void currentCallback (sensor_msgs::NavSatFix current)
     //ROS_INFO("I got to current points");
 }
 
+float calculateError()
+{
+    //Get current map points
+    UTM_point = latLongtoUTM(latiC, longC);
+    map_point = UTMtoMapPoint(UTM_point);
+
+    UTM_next = latLongtoUTM(latiG, longG);
+    map_next = UTMtoMapPoint(UTM_next);
+
+    float error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
+    return error;
+}
+
 void writerResult(std::string path_to_result_file, float err)
 {
     // Open file
-    std::ofstream resultFile:
+    std::ofstream resultFile;
     resultFile.open (path_to_result_file.c_str(),std::ios::app);
     
     // Write to file
-    resultFile << "Error: "<< err << "Target:" << longG <<","<<latig << "Curent:" << longC << "," << latiC << std::endl;
+    resultFile << "Error: "<< err << " Target: " << std::fixed << latiG <<", " << std::fixed << longG << " Curent: " << std::fixed 
+        << latiC << ", " << std::fixed << longC << std::endl;
 
     // Close file
-    paramsFile.close();
+    resultFile.close();
 }
 
 
@@ -206,18 +258,44 @@ int main(int argc, char** argv)
             ROS_INFO("Sending goal");
             ac.sendGoal(goal); //push goal to move_base node
 
-            //Wait for result 
-            ROS_INFO("Wait for result");
-            ac.waitForResult(); //waiting to see if move_base was able to reach goal
+            //Wait for result //TODO: bizim hedef değişken olacağı için beklemiyoruz.
+            //ROS_INFO("Wait for result");
+            //ac.waitForResult(); //waiting to see if move_base was able to reach goal
 
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
             {
-                ROS_INFO("Rover has reached its goal!\n");
+                ROS_INFO("Rover has reached its goal!");
+                ros::spinOnce();
                 float error = calculateError();
                 ROS_INFO("Rover has reached its goal! with error: %f",error);
-                std::string path =  ros::package::getPath("outdoor_waypoint_nav") + "/params/results.txt";
-                ROS_INFO("Writing results to file...");
-                writerResult(path, error);
+
+                
+                if (debug_mode == true)
+                {
+                    std::string path =  ros::package::getPath("rover_waypoint_nav") + "/params/results.txt";
+                    ROS_INFO("Writing results to file...");
+                    ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
+                    writerResult(path, error);
+                }
+                while (error >= 4)
+                {
+                    ros::spinOnce();
+
+                    UTM_point = latLongtoUTM(latiC, longC);
+                    map_point = UTMtoMapPoint(UTM_point);
+
+                    UTM_next = latLongtoUTM(latiG, longG);
+                    map_next = UTMtoMapPoint(UTM_next);
+                    //Build goal to send to move_base
+                    move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                    // Send Goal
+                    ROS_INFO("Error bigger than 4m, goal has sended again");
+                    ac.sendGoal(goal); //push goal to move_base node
+
+                    ROS_INFO("Wait for result");
+                    ac.waitForResult();
+                }
             }
             else
             {

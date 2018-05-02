@@ -168,8 +168,14 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
      name: '/mavros/imu/data',
      messageType: 'sensor_msgs/Imu'
  });
+ var gps_control_listener = new ROSLIB.Topic({
+     ros: ros,
+     name: 'gps/control',
+     messageType: 'sensor_msgs/NavSatFix'
+ });
  //-------------------------------------------
- var markerLineString = {
+
+var markerLineString = {
 
 
      "type": "Feature",
@@ -184,6 +190,7 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
  $(document).ready(function () {
      $("#marker-adder").hide();
      $("#edit-controls").hide();
+     $("converter_section").hide();
  });
  var map = new mapboxgl.Map({
      container: 'map',
@@ -351,6 +358,38 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
      });
 
  });
+function converter() {
+     var degree = document.getElementById('deg').value;
+     var minute = document.getElementById('min').value;
+     var second = document.getElementById('sec').value;
+     var longitude_i = document.getElementById('long').value;
+
+
+     //alert(degree);
+     longitude = parseFloat(degree) + parseFloat(minute / 60) + parseFloat(second / 3600);
+     document.getElementById("outputLong").innerHTML = longitude;
+     //alert(longitude);
+
+     long_deg = Math.floor(longitude_i);
+     document.getElementById("outputDeg").innerHTML = long_deg;
+
+     long_min_i = 60 * (longitude_i - long_deg);
+
+     long_min = Math.floor(long_min_i);
+
+
+     document.getElementById("outputMin").innerHTML = long_min;
+
+     long_sec = 60 * (long_min_i - long_min);
+
+     document.getElementById("outputSec").innerHTML = long_sec;
+
+
+
+
+
+ }
+
 
  function initPublishers() {
      position_publisher.publish(pos_msg);
@@ -377,6 +416,12 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
      //--Altitude (m)AMSL
      //TODO add artificial horizon
      global_position_listener.subscribe(function (msg) {
+         console.log(msg.data);
+         drone.coordinates[1] = msg.latitude;
+         drone.coordinates[0] = msg.longitude;
+     });
+        gps_control_listener.subscribe(function (msg) {
+         console.log(msg.data);
          drone.coordinates[1] = msg.latitude;
          drone.coordinates[0] = msg.longitude;
      });
@@ -401,7 +446,7 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
  });
 
  $("#addMarkBtn").click(function () {
-     var data = [Number($("#addMarkLat").val()), Number($("#addMarkLng").val())];
+     var data = [Number($("#addMarkLng").val()), Number($("#addMarkLat").val())];
      addMark(data);
  });
 
@@ -417,7 +462,22 @@ var isp_map_bound = new mapboxgl.LngLatBounds([30.555052198293847, 37.7626145276
      }
      ui_variables.editable = !ui_variables.editable;
      $("#marker-adder").slideToggle(500);
+      
      $("#edit-controls").slideToggle(500);
+
+ });
+
+$("#converter").click(function () {
+     if (!ui_variables.editable) {
+         initControl("#convert_section");
+
+         ui_variables.add = false;
+         ui_variables.move = false;
+         ui_variables.remove = false;
+     }
+     ui_variables.editable = !ui_variables.editable;
+     $("#convert").slideToggle(500);
+
 
  });
 

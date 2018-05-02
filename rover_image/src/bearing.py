@@ -13,33 +13,44 @@ pxCoordinates = [None]*2
 videoWidth = None
 videoHeight = None
 calculatedBearing = None
-
+noBall = True
 
 def pxCallback(data):
     global pxCoordinates
     global videoHeight
     global videoWidth
-    pxCoordinates[0] = float(data.data.split(',')[0])
-    pxCoordinates[1] = float(data.data.split(',')[1])
-    videoWidth = float(data.data.split(',')[2])
-    videoHeight = float(data.data.split(',')[3])
+    global noBall
+    if(data.data != '-'):
+        pxCoordinates[0] = float(data.data.split(',')[0])
+        pxCoordinates[1] = float(data.data.split(',')[1])
+        videoWidth = float(data.data.split(',')[2])
+        videoHeight = float(data.data.split(',')[3])
+        noBall = False
+    else:
+        noBall = True
     
     
 def calculateBearing(pxWidth, pxHeight, videoWidth, videoHeight):
     global calculatedBearing
-    if pxWidth != None and videoWidth != None:
+    global noBall
+    if pxWidth != None and videoWidth != None and noBall == False :
         center = videoWidth / 2
+        anglePerPixel = camAngleOfView/videoWidth
         diff = center - pxWidth
         if diff > 5:
-            print("-" + str(abs(diff)))
-            calculatedBearing = "-"+str(abs(diff))
+            print("-" + str(abs(diff*anglePerPixel)))            
+            calculatedBearing = "+"+str(abs(diff * anglePerPixel))
         elif diff < -5:
-            print("+" + str(abs(diff)))
-            calculatedBearing = "+"+str(abs(diff))
+            print("+" + str(abs(diff*anglePerPixel)))
+            calculatedBearing = "-"+str(abs(diff * anglePerPixel))
         else:
             print("Duz")
-        rospy.sleep(0.04)
+            calculatedBearing= "0"
+        
+    else:
+        calculatedBearing = "-"
 
+    rospy.sleep(0.04)
         
 
 

@@ -2,8 +2,8 @@
 
 <launch>
   <!--In Debug Mode save results in the params directory at results.txt-->
-  <param name="debug" type="bool" value="true" />
+  <param name="/outdoor_waypoint_nav/debug" type="bool" value="true" />
 
-  <node name="rover_waypoint_nav" pkg="rover_waypoint_nav" type="gps_waypoint" />
+  <node name="rover_waypoint_nav" pkg="rover_waypoint_nav" type="gps_waypoint" output="screen"/>
 
 </launch>
