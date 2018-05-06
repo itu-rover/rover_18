@@ -18,3 +18,6 @@ Error: 0.393867 Target: 41.105130, 29.023245 Curent: 41.105133, 29.023243
 Error: 0.431115 Target: 41.105075, 29.022829 Curent: 41.105077, 29.022833
 Error: 0.454442 Target: 41.105268, 29.023248 Curent: 41.105272, 29.023248
 Error: 0.448149 Target: 41.104468, 29.023617 Curent: 41.104469, 29.023622
+
+rostopic pub /gps/control sensor_msgs/NavSatFix '{ latitude: 41.104468, longitude: 29.023617 }' -1
+rostopic pub /gps/control sensor_msgs/NavSatFix '{ latitude: 41.105075, longitude: 29.022829 }' -1

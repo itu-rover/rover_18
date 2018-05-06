@@ -1,9 +1,8 @@
 <launch>
 
-
  <!-- joy node -->
   <node respawn="true" pkg="joy"
-        type="joy_node" name="turtle_joy" >
+        type="joy_node" name="joy_node" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
   </node>
@@ -11,7 +10,7 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="2" type="int"/>
-  <param name="scale_linear" value="0.5" type="double"/>
-  <param name="scale_angular" value="0.5" type="double"/>
+  <param name="kill_switch" value="0" type="int"/>
+  <param name="throttle" value="3" type="int"/>
   <node pkg="rover_control" type="teleop_joy" name="teleop_joy"/>
 </launch>

@@ -20,7 +20,8 @@ MoveBaseClient; //create a type definition for a client called MoveBaseClient
 
 geometry_msgs::PointStamped UTM_point, map_point, UTM_next, map_next;
 int count = 0, wait_count = 0;
-double latiG, longG, latiC, longC;
+double latiG, longG, latiC, longC, latiGT, longGT;
+double goal_error;
 std::string utm_zone;
 std::string path_local, path_abs;
 bool flag = false; // flag for activate waypoint handler
@@ -121,30 +122,60 @@ void targetCallback (sensor_msgs::NavSatFix target)
     
         ROS_INFO("flag is :%s", flag?"true":"false");
     }
-
 }
 
 void currentCallback (sensor_msgs::NavSatFix current)
 {
-
     longC=current.longitude;
     latiC=current.latitude;
-
-    //ROS_INFO("I got to current points");
 }
 
-float calculateError()
+double calculateError()
 {
     //Get current map points
+    ros::spinOnce();
     UTM_point = latLongtoUTM(latiC, longC);
     map_point = UTMtoMapPoint(UTM_point);
 
     UTM_next = latLongtoUTM(latiG, longG);
     map_next = UTMtoMapPoint(UTM_next);
 
-    float error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
         +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
     return error;
+}
+
+double calculateTemporaryError()
+{
+    //Get current map points
+    ros::spinOnce();
+    UTM_point = latLongtoUTM(latiC, longC);
+    map_point = UTMtoMapPoint(UTM_point);
+
+    UTM_next = latLongtoUTM(latiGT, longGT);
+    map_next = UTMtoMapPoint(UTM_next);
+
+    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
+    return error;
+}
+
+void createTempoaryPoint(double latiTarget, double longTarget)
+{
+	ROS_INFO("Creating new points between rover and %f, %f", latiTarget, longTarget);
+	ros::spinOnce();
+	double latiError = latiTarget - latiC, longError = longTarget - longC;
+	latiGT = latiC + latiError/2;
+	longGT = longC + longError/2;
+	if (calculateTemporaryError()>150 && ros::ok())
+	{
+		ROS_INFO("Created point error %f", calculateTemporaryError());
+		createTempoaryPoint(latiGT, longGT);
+	}
+	else
+	{
+		return;
+	}
 }
 
 void writerResult(std::string path_to_result_file, float err)
@@ -202,118 +233,61 @@ int main(int argc, char** argv)
     while(ros::ok())
     {
         if (flag == true)
-        {       
-            ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
-            ROS_INFO("Received goal coordinates latitude:%.8f, longitude:%.8f", latiG, longG);
-
-            //Convert lat/long to utm:
-            UTM_point = latLongtoUTM(latiC, longC);
-            UTM_next = latLongtoUTM(latiG, longG);
-
-            //Transform UTM to map point in odom frame
-            map_point = UTMtoMapPoint(UTM_point);
-            map_next = UTMtoMapPoint(UTM_next);
-
-            //Build goal to send to move_base
-            move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
-
-            // Send Goal
-            ROS_INFO("Sending goal");
-            ac.sendGoal(goal); //push goal to move_base node
-
-            float error = 2;
-
-            while(error >=1)
+        {
+            if (calculateError()<150) // distance to goal less than 150 m
             {
-                ac.waitForResult(ros::Duration(10));
-                ros::spinOnce();
-                error = calculateError(); 
-
-                if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-                {
-                    ROS_INFO("Rover has reached its goal! with error: %f m",error); 
-                    if (error <= 1)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
-
-                        // Send Goal
-                        ROS_INFO("Goal calculated");
-                        ac.sendGoal(goal);
-                        ROS_INFO("Goal has sended"); 
-
-                    }
-                }//TODo: if error less than 20 meters wait less time
-                else
-                {
-                    ROS_INFO("Wait 40 seconds");
-                    ros::Duration(40).sleep();
-                    ros::spinOnce();
-                    error = calculateError();
-                    ROS_INFO("Rover has not reached its goal! actual error is: %f m",error);
-
-                    goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
-
-                    // Send Goal
-                    ROS_INFO("Goal calculated");
-                    ac.sendGoal(goal);
-                    ROS_INFO("Goal has sended"); 
-                }
-            }         
-/*
-            if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            {
-                ROS_INFO("Rover has reached its goal!");
-                ros::spinOnce();
-                error = calculateError();
-                ROS_INFO("Rover has reached its goal! with error: %f",error);
-
-                
-                if (debug_mode == true)
-                {
-                    std::string path =  ros::package::getPath("rover_waypoint_nav") + "/params/results.txt";
-                    ROS_INFO("Writing results to file...");
-                    ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
-                    writerResult(path, error);
-                }
-                while (error >= 4)
-                {
-                    ros::spinOnce();
-
-                    UTM_point = latLongtoUTM(latiC, longC);
-                    map_point = UTMtoMapPoint(UTM_point);
-
-                    UTM_next = latLongtoUTM(latiG, longG);
-                    map_next = UTMtoMapPoint(UTM_next);
-                    //Build goal to send to move_base
+            	while(calculateError() >=1) // try to reach goal
+            	{	
                     move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
 
-                    // Send Goal
-                    ROS_INFO("Error bigger than 4m, goal has sended again");
-                    ac.sendGoal(goal); //push goal to move_base node
+                    ac.sendGoal(goal);
+                    ROS_INFO("Rover is closer than 150m to goal with error: %f m, new goal has sended", calculateError());
+                    ac.waitForResult(ros::Duration(20)); 
 
-                    ROS_INFO("Wait for result");
-                    ac.waitForResult();
-                    error = calculateError();
+                	if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                	{
+                    	ROS_INFO("Rover is closer than 150m to goal with error: %f m", calculateError()); 
+                    	if (calculateError() <=1)
+                    	{
+                    		ROS_INFO("Rover succeded!");
+                    		flag = false;
+            				ROS_INFO("flag is :%s", flag?"true":"false");
+                        	break; //rover reached to actual goal SUCCES!
+                    	}
+                	}//TODo: if error less than 20 meters wait less time
+                	else
+                    {
+                   		ros::Duration(40).sleep();              
+                   	}
                 }
             }
             else
             {
-                ROS_WARN("All is Well\n");
-            }*/
-            
-            flag = false;
-            ROS_INFO("flag is :%s", flag?"true":"false");
+            	createTempoaryPoint(latiG, longG);
+            	while(calculateTemporaryError()>=1)
+            	{
+            		move_base_msgs::MoveBaseGoal goal = buildGoal(map_point, map_next);
+            		ac.sendGoal(goal);
+                    ROS_INFO("Rover is far away 150 m from actual goal with error: %f m, temporary goal has sended", calculateError());
+                    ac.waitForResult(ros::Duration(10));
+                    if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                	{
+                    	ROS_INFO("Rover has reached to temporary goal with error: %f m", calculateTemporaryError()); 
+                    	if (calculateTemporaryError() <=1)
+                    	{
+                    		ROS_INFO("Rover has reached to temporary goal calculating again!");
+                        	break; //rover reached to actual goal SUCCES!
+                    	}
+                	}
+                	else
+                    {
+                    	ros::Duration(40).sleep();              
+                    }
+            	}
+            }                     
         }
         r.sleep();
         ros::spinOnce();
     }
-    
-
-    ROS_INFO("Rover SUCCEEDED!\n");
-
     return 0;
 }

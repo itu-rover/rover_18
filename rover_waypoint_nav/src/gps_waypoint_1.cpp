@@ -20,7 +20,7 @@ MoveBaseClient; //create a type definition for a client called MoveBaseClient
 
 geometry_msgs::PointStamped UTM_point, map_point, UTM_next, map_next;
 int count = 0, wait_count = 0;
-double latiG, longG, latiC, longC, latiD, longD;
+double latiG, longG, latiC, longC;
 std::string utm_zone;
 std::string path_local, path_abs;
 bool flag = false; // flag for activate waypoint handler
@@ -55,8 +55,8 @@ geometry_msgs::PointStamped UTMtoMapPoint(geometry_msgs::PointStamped UTM_input)
         try
         {
             UTM_point.header.stamp = ros::Time::now();
-            listener.waitForTransform("map", "utm", time_now, ros::Duration(3.0));
-            listener.transformPoint("map", UTM_input, map_point_output);
+            listener.waitForTransform("odom", "utm", time_now, ros::Duration(3.0));
+            listener.transformPoint("odom", UTM_input, map_point_output);
             notDone = false;
         }
         catch (tf::TransformException& ex)
@@ -69,49 +69,12 @@ geometry_msgs::PointStamped UTMtoMapPoint(geometry_msgs::PointStamped UTM_input)
     return map_point_output;
 }
 
-geometry_msgs::PointStamped MapPointtoUTM(geometry_msgs::PointStamped map_point_input)
-{
-    geometry_msgs::PointStamped UTM_output;
-    bool notDone = true;
-    tf::TransformListener listener; //create transformlistener object called listener
-    ros::Time time_now = ros::Time::now();
-    while(notDone)
-    {
-        try
-        {
-            UTM_point.header.stamp = ros::Time::now();
-            listener.waitForTransform("utm", "map", time_now, ros::Duration(3.0));
-            listener.transformPoint("utm", map_point_input, UTM_output);
-            notDone = false;
-        }
-        catch (tf::TransformException& ex)
-        {
-            ROS_WARN("%s", ex.what());
-            ros::Duration(0.01).sleep();
-            //return;
-        }
-    }
-    return UTM_output;
-}
-
-void UTMtolatlong(geometry_msgs::PointStamped UTM_input)
-{
-    double utm_x = 0, utm_y = 0;
-    utm_x = UTM_input.point.x;
-    utm_y = UTM_input.point.y;
-
-    //convert lat/long to utm
-    RobotLocalization::NavsatConversions::UTMtoLL(utm_y, utm_x, utm_zone, latiD, longD);
-
-    return;
-}
-
 move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped map_next)
 {
     move_base_msgs::MoveBaseGoal goal;
 
     //Specify what frame we want the goal to be published in
-    goal.target_pose.header.frame_id = "map";
+    goal.target_pose.header.frame_id = "odom";
     goal.target_pose.header.stamp = ros::Time::now();
 
     // Specify x and y goal
@@ -168,6 +131,31 @@ void currentCallback (sensor_msgs::NavSatFix current)
     latiC=current.latitude;
 
     //ROS_INFO("I got to current points");
+}
+
+bool distanceChecker()
+{   
+    bool isItFar;
+    ros::spinOnce();
+    //Get current map points
+    UTM_point = latLongtoUTM(latiC, longC);
+    map_point = UTMtoMapPoint(UTM_point);
+
+    UTM_next = latLongtoUTM(latiG, longG);
+    map_next = UTMtoMapPoint(UTM_next);
+
+    float error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));
+
+    if (error > 150)
+    {
+        isItFar = false;
+    }
+    else
+    {
+        isItFar = true;
+    }
+    return isItFar;
 }
 
 float calculateError()
@@ -234,7 +222,7 @@ int main(int argc, char** argv)
         ROS_INFO("Waiting for the move_base action server to come up");
     }
 
-    ros::Rate r(1); // 1 hz
+    ros::Rate r(2); // 2 hz
 
     while(ros::ok())
     {
@@ -258,15 +246,54 @@ int main(int argc, char** argv)
             ROS_INFO("Sending goal");
             ac.sendGoal(goal); //push goal to move_base node
 
-            //Wait for result //TODO: bizim hedef değişken olacağı için beklemiyoruz.
-            //ROS_INFO("Wait for result");
-            //ac.waitForResult(); //waiting to see if move_base was able to reach goal
+            float error = 2;
 
+            while(error >=1)
+            {
+                ac.waitForResult(ros::Duration(10));
+                ros::spinOnce();
+                error = calculateError(); 
+
+                if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                {
+                    ROS_INFO("Rover has reached its goal! with error: %f m",error); 
+                    if (error <= 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                        // Send Goal
+                        ROS_INFO("Goal calculated");
+                        ac.sendGoal(goal);
+                        ROS_INFO("Goal has sended"); 
+
+                    }
+                }//TODo: if error less than 20 meters wait less time
+                else
+                {
+                    ROS_INFO("Wait 40 seconds");
+                    ros::Duration(40).sleep();
+                    ros::spinOnce();
+                    error = calculateError();
+                    ROS_INFO("Rover has not reached its goal! actual error is: %f m",error);
+
+                    goal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                    // Send Goal
+                    ROS_INFO("Goal calculated");
+                    ac.sendGoal(goal);
+                    ROS_INFO("Goal has sended"); 
+                }
+            }         
+/*
             if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
             {
                 ROS_INFO("Rover has reached its goal!");
                 ros::spinOnce();
-                float error = calculateError();
+                error = calculateError();
                 ROS_INFO("Rover has reached its goal! with error: %f",error);
 
                 
@@ -295,12 +322,13 @@ int main(int argc, char** argv)
 
                     ROS_INFO("Wait for result");
                     ac.waitForResult();
+                    error = calculateError();
                 }
             }
             else
             {
                 ROS_WARN("All is Well\n");
-            }
+            }*/
             
             flag = false;
             ROS_INFO("flag is :%s", flag?"true":"false");

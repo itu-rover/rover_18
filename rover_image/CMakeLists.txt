@@ -202,8 +202,3 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
-add_compile_options(-std=c++11)
-add_executable(zed src/zed.cpp)
-target_link_libraries(zed ${catkin_LIBRARIES})
-add_dependencies(zed rover_image_generate_messages_cpp)
-

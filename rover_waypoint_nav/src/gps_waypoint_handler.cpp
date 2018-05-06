@@ -36,7 +36,7 @@ private:
 	move_base_msgs::MoveBaseGoal moveBaseGoal;
 	int count = 0, wait_count = 0;
 	geometry_msgs::PointStamped UTM_point, map_point, UTM_next, map_next;
-	double latiG, longG, latiC, longC;
+	double latiG, longG, latiC, longC, latiGT, longGT;
 	std::string utm_zone;
 	bool targetFlag = false; // flag for the activating waypoint handler
 
@@ -202,16 +202,35 @@ public:
 	    return goal;
   	}
 
-  	float calculateError()
-	{
-		//Get current map points
-    	UTM_point = latLongtoUTM(latiC, longC);
-		map_point = UTMtoMapPoint(UTM_point);
+  	double calculateError()
+    {
+    //Get current map points
+    ros::spinOnce();
+    UTM_point = latLongtoUTM(latiC, longC);
+    map_point = UTMtoMapPoint(UTM_point);
 
-		float error = sqrt((map_next.point.x-map_point.point.x)+(map_next.point.y-map_point.point.y));
-    	
-    	return error;
-	}
+    UTM_next = latLongtoUTM(latiG, longG);
+    map_next = UTMtoMapPoint(UTM_next);
+
+    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
+    return error;
+    }
+
+    double calculateTemporaryError()
+    {
+    //Get current map points
+    ros::spinOnce();
+    UTM_point = latLongtoUTM(latiC, longC);
+    map_point = UTMtoMapPoint(UTM_point);
+
+    UTM_next = latLongtoUTM(latiGT, longGT);
+    map_next = UTMtoMapPoint(UTM_next);
+
+    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+        +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
+    return error;
+    }
 
   	void doStuff()
   	{
