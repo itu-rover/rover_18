@@ -20,6 +20,7 @@
 </head>
 
 <body class="hold-transition skin-real-dark layout-top-nav">
+    
     <div class="wrapper">
         <header class="main-header">
             <nav class="navbar navbar-static-top">
@@ -41,8 +42,9 @@
                     </div>
                 </div>
             </nav>
+             
         </header>
-    </div>
+   
 
 
     <div class="content-wrapper">
@@ -56,6 +58,7 @@
                     <div class="col-md-12">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default btn-flat" id="go-to-rover">GO TO ROVER</button>
+                             <button type="button" class="btn btn-default btn-flat" id="add-rover">ADD ROVER</button>
                             <button type="button" class="btn btn-default btn-flat toggle-btn" id="focus-on-rover">FOCUS ON ROVER</button>
                             <button type="button" class="btn btn-default btn-flat toggle-btn" id="edit-markers">EDIT MARKERS</button>
                             <div class="btn-group">
@@ -110,12 +113,12 @@
                         <br>
 
                     </div>
-                    <div class="col-md-4 col-sm-4 col-xs-4 pull-left">
-                        <div class="box box-info bg-gray " id="convert_section">
+                    <div class="col-md-2 col-sm-2 col-xs-2 pull-left">
+                        <div class="box box-danger bg-gray " id="convert_section">
                             <div class="box-header with-border">
                                 <h3 class="box-title">Converter</h3>
                                 <div class="box-tools pull-right">
-                                    <button type="button" class="btn open.btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                                      <button type="button" class="btn open.btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                                     <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
                                 </div>
                             </div>
@@ -124,21 +127,21 @@
                             <form class="form-horizontal">
                                 <div class="box-body" style="display: none;">
                                     <div class="form-group">
-                                        <label for="inputEmail3" class="col-sm-2 control-label">Degrees</label>
+                                        <label for="inputEmail3" class="col-sm-2 control-label">°</label>
 
                                         <div class="col-sm-10">
                                             <input type="number" class="form-control" id="deg" placeholder="Degrees">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputPassword3" class="col-sm-2 control-label">Minutes</label>
+                                        <label for="inputPassword3" class="col-sm-2 control-label">"</label>
 
                                         <div class="col-sm-10">
                                             <input type="number" class="form-control" id="min" placeholder="Minutes">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputEmail3" class="col-sm-2 control-label">Seconds</label>
+                                        <label for="inputEmail3" class="col-sm-2 control-label">'</label>
 
                                         <div class="col-sm-10">
                                             <input type="number" class="form-control" id="sec" placeholder="Seconds">
@@ -158,9 +161,9 @@
 
                                             <div class="col-sm-10">
                                                 <input type="number" class="form-control" id="long" placeholder="Longitude">
-                                                <p>degree: <span id="outputDeg"></span>
-                                                    <p>minute: <span id="outputMin"></span></p>
-                                                    <p>second: <span id="outputSec"></span>
+                                                <p> <span id="outputDeg">°</span>
+                                                    <p>" <span id="outputMin"></span></p>
+                                                    <p>' <span id="outputSec"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -177,9 +180,11 @@
             </section>
 
         </div>
+        
 
 
 
+    </div>
     </div>
     <script type="text/javascript" src="./js/external/jquery-2.2.4.min.js"></script>
     <script type="text/javascript" src="./js/mission-planning.js"></script>

@@ -46,7 +46,7 @@ public:
   				sm_sub(gw_nh.subscribe<rover_state_mach::RoverStateMsg>("/rover_state_topic",10, &GpsWaypoint::stateMachineCB, this)), //TODO:  convert to state machine msgs type and topic
   				tg_sub(gw_nh.subscribe<sensor_msgs::NavSatFix>("/rover_gps/waypoint", 10, &GpsWaypoint::targetPointCB, this)),
   				cg_sub(gw_nh.subscribe<sensor_msgs::NavSatFix>("/gps/fix", 10, &GpsWaypoint::currentPointCB, this)),
-  				rate(1)
+  				rate(2)
 	{
     	while(!ac.waitForServer(ros::Duration(5.0)))
    		{
@@ -204,32 +204,50 @@ public:
 
   	double calculateError()
     {
-    //Get current map points
-    ros::spinOnce();
-    UTM_point = latLongtoUTM(latiC, longC);
-    map_point = UTMtoMapPoint(UTM_point);
+      //Get current map points
+      ros::spinOnce();
+      UTM_point = latLongtoUTM(latiC, longC);
+      map_point = UTMtoMapPoint(UTM_point);
 
-    UTM_next = latLongtoUTM(latiG, longG);
-    map_next = UTMtoMapPoint(UTM_next);
+      UTM_next = latLongtoUTM(latiG, longG);
+      map_next = UTMtoMapPoint(UTM_next);
 
-    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+      double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
         +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
-    return error;
+      return error;
     }
 
     double calculateTemporaryError()
     {
-    //Get current map points
-    ros::spinOnce();
-    UTM_point = latLongtoUTM(latiC, longC);
-    map_point = UTMtoMapPoint(UTM_point);
+      //Get current map points
+      ros::spinOnce();
+      UTM_point = latLongtoUTM(latiC, longC);
+      map_point = UTMtoMapPoint(UTM_point);
 
-    UTM_next = latLongtoUTM(latiGT, longGT);
-    map_next = UTMtoMapPoint(UTM_next);
+      UTM_next = latLongtoUTM(latiGT, longGT);
+      map_next = UTMtoMapPoint(UTM_next);
 
-    double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
+      double error = sqrt((map_next.point.x-map_point.point.x)*(map_next.point.x-map_point.point.x)
         +(map_next.point.y-map_point.point.y)*(map_next.point.y-map_point.point.y));    
-    return error;
+      return error;
+    }
+
+    void createTempoaryPoint(double latiTarget, double longTarget)
+    {
+      ROS_INFO("Creating new points between rover and %f, %f", latiTarget, longTarget);
+      ros::spinOnce();
+      double latiError = latiTarget - latiC, longError = longTarget - longC;
+      latiGT = latiC + latiError/2;
+      longGT = longC + longError/2;
+      if (calculateTemporaryError()>150 && ros::ok())
+      {
+        ROS_INFO("Created point error %f", calculateTemporaryError());
+        createTempoaryPoint(latiGT, longGT);
+      }
+      else
+      {
+        return;
+      }
     }
 
   	void doStuff()
@@ -240,38 +258,12 @@ public:
         	{
         		if (targetFlag == true)
         		{       
-            		ROS_INFO("Received current coordinates latitude:%.8f, longitude:%.8f", latiC, longC);
-            		ROS_INFO("Received goal coordinates latitude:%.8f, longitude:%.8f", latiG, longG);
-
-            		//Convert lat/long to utm:
-            		UTM_point = latLongtoUTM(latiC, longC);
-            		UTM_next = latLongtoUTM(latiG, longG);
-
-            		//Transform UTM to map point in odom frame
-            		map_point = UTMtoMapPoint(UTM_point);
-            		map_next = UTMtoMapPoint(UTM_next);
-
-            		//Build goal to send to move_base
-            		moveBaseGoal = buildGoal(map_point, map_next); //initiate a move_base_msg called moveBaseGoal
-
-            		// Send Goal
-            		ROS_INFO("Sending goal");
-            		ac.sendGoal(moveBaseGoal,
-        	    				boost::bind(&GpsWaypoint::doneCb, this, _1, _2),
-           	    				boost::bind(&GpsWaypoint::activeCb, this),
-                				boost::bind(&GpsWaypoint::feedbackCb, this, _1));
+            		double error = calculateError();
+                ROS_INFO("I got the target point w error %f m", error);
 
             		std_msgs::String sm_info;
             		sm_info.data = "1";
             		sm_pub.publish(sm_info);  //Send info to SM, we have sended goal to move base
-
-            		//Wait for result 
-            		//ROS_INFO("Wait for result");
-            		//ac.waitForResult(); //waiting to see if move_base was able to reach goal
-            		//TODO: STATE MACHİNE MANTIĞINA GÖRE BURALARI DÜZENLE
-            
-            		targetFlag = false;
-            		ROS_INFO("flag is :%s", targetFlag?"true":"false");
         		}
         		else
         		{
@@ -281,22 +273,78 @@ public:
 
         	else if (roverState.state == rover_state_mach::RoverStateMsg::REACH_GPS)
         	{
-        		if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            	{
-            		float error = calculateError();
-                	ROS_INFO("Rover has reached its goal! with error: %f",error);
-            	}
-            	else
-            	{
-                	ROS_WARN("Goal not succeded yet.\n");
-            	}
-        	}
-        	else  //Out of gps waypoint state, if there is an active goal from this node cancel it respect to
-        	{
-        		/* önceden gönderilen goalları yok et.?Goal ID olmadı flag kullan*/
-        	}
-        	rate.sleep();
-        	ros::spinOnce();
+            if (targetFlag == true)
+            {
+              if (calculateError()<150) // distance to goal less than 150 m
+              { 
+                while(calculateError() >=1) // try to reach goal
+                {  
+                  moveBaseGoal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                  ac.sendGoal(moveBaseGoal,
+                    boost::bind(&GpsWaypoint::doneCb, this, _1, _2),
+                    boost::bind(&GpsWaypoint::activeCb, this),
+                    boost::bind(&GpsWaypoint::feedbackCb, this, _1));
+  
+                  ROS_INFO("Rover is closer than 150m to goal with error: %f m, new goal has sended", calculateError());
+                  ac.waitForResult(ros::Duration(20)); 
+
+                  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                  {
+                      ROS_INFO("Rover is closer than 150m to goal with error: %f m", calculateError()); 
+                      if (calculateError() <=1)
+                      {
+                        ROS_INFO("Rover succeded!");
+                        targetFlag = false;
+                        std_msgs::String sm_info;
+                        sm_info.data = "2";
+                        sm_pub.publish(sm_info); 
+                        ROS_INFO("flag is :%s", targetFlag?"true":"false");
+                        break; //rover reached to actual goal SUCCESS!
+                      }
+                  }
+                  else
+                  {
+                    ros::Duration(40).sleep();              
+                  }
+                }
+              }
+              else //if error bigger than 150 m
+              {
+                createTempoaryPoint(latiG, longG);
+                while(calculateTemporaryError()>=1)
+                {
+                  moveBaseGoal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
+
+                  ac.sendGoal(moveBaseGoal,
+                      boost::bind(&GpsWaypoint::doneCb, this, _1, _2),
+                      boost::bind(&GpsWaypoint::activeCb, this),
+                      boost::bind(&GpsWaypoint::feedbackCb, this, _1));
+                  ROS_INFO("Rover is far away 150 m from actual goal with error: %f m, temporary goal has sended", calculateError());
+                  ac.waitForResult(ros::Duration(10));
+                  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                  {
+                    ROS_INFO("Rover has reached to temporary goal with error: %f m", calculateTemporaryError()); 
+                    if (calculateTemporaryError() <=1)
+                    {
+                      ROS_INFO("Rover has reached to temporary goal calculating again!");
+                      break; //rover reached to actual goal SUCCES!
+                    }
+                  }
+                  else
+                  {
+                    ros::Duration(40).sleep();              
+                  }
+                }
+              }                      
+            }
+          }
+          else  //Out of gps waypoint state, if there is an active goal from this node cancel it respect to
+      	  {
+      		  ROS_INFO("Not my turn bro :(");
+      	  }
+        rate.sleep();
+      	ros::spinOnce();
     }
 	    
 	}
