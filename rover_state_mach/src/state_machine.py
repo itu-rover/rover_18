@@ -31,11 +31,10 @@ class INITIALISE(smach.State):
 
     def __init__(self):               
         smach.State.__init__(self, outcomes=['REPEAT', 'FAIL', 'SUCCESS'])
-        self.initaliseTimeout = status_handler.initaliseTimeout             # State Time Out
-        self.timeoutCounter = 0    
+        self.initaliseTimeout = status_handler.initaliseTimeout
+        self.timeoutCounter = status_handler.initaliseTimeout
         self.rate = rospy.Rate(1)
-        self.stateMsg = RoverStateMsg()  
-
+        self.stateMsg = RoverStateMsg()
 
 
 
@@ -69,7 +68,7 @@ class INITIALISE(smach.State):
             return 'FAIL'
 
 
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'REPEAT'
 
 ######################################################################################################################################################
@@ -122,7 +121,7 @@ class READY(smach.State):
             return 'FAIL'
 
 
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'REPEAT'
 #########################################################################################################################################################
 #Checks the Attribute parameter
@@ -136,7 +135,6 @@ class REACH_GPS(smach.State):
         smach.State.__init__(self, outcomes=['SUCCESS','IMAGE_INTERRUPT', 'FAIL', 'REPEAT'])
         self.rate = rospy.Rate(1)
         self.stateMsg = RoverStateMsg()
-        
 
     def execute(self, userdata):
         rospy.loginfo(_namespace + "On Reach GPS State")
@@ -168,7 +166,7 @@ class REACH_GPS(smach.State):
                 return 'SUCCESS'
 
 
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'REPEAT'
 ##############################################################################################################################################################
 # Checks if image detected.
@@ -182,18 +180,22 @@ class FIND_IMAGE(smach.State):
         self.timeoutCounter = 0
         self.rate = rospy.Rate(1)
         self.stateMsg = RoverStateMsg()
+        self.goBack = status_handler.goBack
+        self.goBack = False
+        
+
 
     def execute(self, userdata):
         rospy.loginfo(_namespace + 'On Find Image State')
 
         self.stateMsg.state = self.stateMsg.FIND_IMAGE
-        status_handler.publishRoverState(self.stateMsg)        
-
+        status_handler.publishRoverState(self.stateMsg)
         self.imageDetected = status_handler.imageDetected
-
-        if status_handler.imageDetected == True:
+        print(str(self.imageDetected) )
+        if self.imageDetected == True:
             rospy.loginfo(_namespace + "Ball has detected, moving to REACH_IMAGE state")
             self.timeoutCounter = 0
+            self.imageDetected = False
             return 'SUCCESS'
 
         else:
@@ -205,7 +207,7 @@ class FIND_IMAGE(smach.State):
             return 'RETURN'
 
 
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'REPEAT'
 ###########################################################################################################################################################
 class REACH_IMAGE(smach.State):
@@ -223,6 +225,8 @@ class REACH_IMAGE(smach.State):
 
         self.stateMsg.state = self.stateMsg.REACH_IMAGE
         status_handler.publishRoverState(self.stateMsg)
+
+
 
         self.imageReached = status_handler.imageReached
         self.goBack = status_handler.goBack
@@ -245,16 +249,15 @@ class REACH_IMAGE(smach.State):
             else:
                 self.timeoutCounter = 0
                 return 'FAIL'
-
+        print(str(self.goBack))
         if self.goBack == True:
             rospy.loginfo(_namespace + "Going back to last waypoint and searching for the ball.")
-            self.goBack = False
             self.timeoutCounter = 0
-            return 'BACK'                                                                               ## !! TO DO : send waypoint here !!
+            return 'BACK'                                                                              ## !! TO DO : send waypoint here !!
 
 
 
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'REPEAT'
 #############################################################################################################################################################
 
@@ -269,7 +272,7 @@ class DEINITIALISE(smach.State):
     def execute(self, userdata):
         rospy.loginfo(_namespace + 'On DEINITIALISE state')
         status_handler.deinitialise()
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'SUCCESS'
 
 
@@ -280,7 +283,7 @@ class ERROR(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('On ERROR state')
-        rospy.sleep(0.04)
+        rospy.sleep(0.1)
         return 'NOT_BAD'
 
 
@@ -308,7 +311,7 @@ def CreateStateMachine():
                                transitions={'SUCCESS': 'REACH_IMAGE', 'FAIL': 'ERROR', 'REPEAT': 'FIND_IMAGE'})
 
         smach.StateMachine.add('REACH_IMAGE', REACH_IMAGE(),
-                               transitions={'SUCCESS': 'DEINITIALISE', 'FAIL': 'ERROR', 'REPEAT': 'REACH_IMAGE','BACK':'REACH_GPS'})
+                               transitions={'SUCCESS': 'DEINITIALISE', 'FAIL': 'ERROR', 'REPEAT': 'REACH_IMAGE','BACK':'FIND_IMAGE'})
 
         smach.StateMachine.add('DEINITIALISE', DEINITIALISE(),
                                transitions={'SUCCESS': 'INITIALISE', 'FAIL': 'ERROR', 'REPEAT': 'DEINITIALISE'})

@@ -20,7 +20,7 @@ obstacles_laser:
     observation_sources: laser_scan_sensor point_cloud_sensor
     laser: {data_type: LaserScan, clearing: true, marking: true, topic: scan, inf_is_valid: true}
 
-    point_cloud_sensor: {sensor_frame: laser_link, clearing: true, topic: cloud, data_type: PointCloud, marking: true}
+    point_cloud_sensor: {sensor_frame: laser_link, clearing: true, topic: cloud, data_type: PointCloud, marking: true, min_obstacle_height: 0.2}
 
 inflation:
     inflation_radius: 0.55

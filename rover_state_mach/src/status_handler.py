@@ -40,6 +40,8 @@ class status_handler:
         self.movementAttribute = rospy.get_param('RoverSmach/attributes/movementAttribute',1)			#0 for pure navigation, 1 for navigation + image searching.
 
         self.wpStatus = 0
+        self.state = 0
+
 
         
 
@@ -51,33 +53,42 @@ class status_handler:
     	self.imu_topic = rospy.get_param('RoverSmach/sub_topics/sub_imu','/imu_topic')
     	self.gps_topic = rospy.get_param('RoverSmach/sub_topics/sub_gps','/gps_topic')
     	self.encoder_topic = rospy.get_param('RoverSmach/sub_topics/sub_encoder','/encoder_topic')
-    	self.wp_status_topic = rospy.get_param('RoverSmach/sub_topics/sub_wp_status','/waypoint_status_topic')
-    	self.image_detect_topic = rospy.get_param('RoverSmach/sub_topics/sub_image_detect','/image_detect_topic')
+    	self.image_detect_topic = rospy.get_param('RoverSmach/sub_topics/sub_image_detect','/px_topic')
     	self.image_reach_topic = rospy.get_param('RoverSmach/sub_topics/sub_reach_image','/image_reach_topic')
     	self.rover_state_topic = rospy.get_param('RoverSmach/pub_topics/pub_rover_state','/rover_state_topic')
 
-    	rospy.Subscriber(self.wp_topic, NavSatFix, self.waypoint_callback) 						# Listen waypoints
+    	rospy.Subscriber(self.wp_topic, String, self.waypoint_callback) 						# Listen waypoints
     	rospy.Subscriber(self.gps_topic, NavSatFix, self.gps_callback) 							# Listen Gps
     	rospy.Subscriber(self.imu_topic, Imu, self.imu_callback)								# Listen IMU
     	rospy.Subscriber(self.encoder_topic, Odometry, self.encoder_callback)					# Listen Encoder
-    	rospy.Subscriber(self.wp_status_topic, GoalStatusArray, self.waypoint_status_callback) 			# Listen waypoint status
     	rospy.Subscriber(self.image_detect_topic, String, self.image_detect_callback) 			# Listen detecting image
     	rospy.Subscriber(self.image_reach_topic, String, self.image_reach_callback)				# Listen reaching image
 
-    	self.state_pub = rospy.Publisher(self.rover_state_topic, RoverStateMsg, queue_size=10)
 
+    	self.state_pub = rospy.Publisher(self.rover_state_topic, RoverStateMsg, queue_size=10)
+    	rospy.Subscriber(self.rover_state_topic,RoverStateMsg,self.state_callback)
 
     
 
 
+
+    def state_callback(self,data):
+    	self.state = data.state
+    	#print(str(self.state))
+
     def waypoint_callback(self,data):								##TODO: Maybe comprassion with old waypoint ??
-    	self.wp = [data.latitude, data.longitude]
+    	self.wp = data.data
     	
     	#If there is a meaningful waypoint : 
-    	if self.wp[0] != '' and self.wp[1] != '':
+    	if self.wp == "1":
     		self.gotWayPoint = True	
+    		self.gpsReached = False
+    	elif self.wp == "2":
+    		self.gotWayPoint = False
+    		self.gpsReached = True
     	else:
     		self.gotWayPoint = False
+    		self.gpsReached = False
     	
 
 
@@ -110,28 +121,20 @@ class status_handler:
     		self.encoderWorking = False
 
 
-    def waypoint_status_callback(self,data):
-    	self.wpNumber = len(data.status_list)
-    	
-    	if self.wpNumber != 0:
-    		for self.x in range (0,self.wpNumber):
-    			self.x += 1
-    		self.wpStatus = data.status_list[0].status
-
-    	else:
-    		self.wpStatus = 0
-
-    	if self.wpStatus == 3:                 ##TODO: The comprassion have to be right
-    		self.gpsReached = True
-    	else:				 
     		self.gpsReached = False
 
     def image_detect_callback(self,data):
     	self.ballDetected = data.data
-    	if self.ballDetected == "1":			##TODO: The comprassion have to be right
-    		self.imageDetected = True
-    	elif self.ballDetected == "0":
-    		self.imageDetected = False
+    	if self.ballDetected != "-":
+    		if self.state == 3:		
+    			self.imageDetected = True
+
+    		self.goBack = False
+    	else:
+    		if self.state == 3:
+    			self.imageDetected = False
+    		"""if self.state == 4:
+    			self.goBack = True"""
 
 
     def image_reach_callback(self,data):
@@ -140,8 +143,8 @@ class status_handler:
     		self.imageReached = True
     	elif self.ballReached == "0":
     		self.imageReached = False		
-    	elif self.ballReached == "2":			#!! GO BACK !!			
-    		self.goBack = True
+    	"""elif self.ballReached == "2":			#!! GO BACK !!			
+    		self.goBack = True"""
 
     def publishRoverState(self, state_msg):		#Publish the state of Rover
         self.state_pub.publish(state_msg)

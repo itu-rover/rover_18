@@ -100,7 +100,7 @@ def main():
 		#Read Frame
 		(_, frame) = camera.read()
 		height, width = frame.shape[:2]
-		frame = frame[0:height,0:int(width*0.5)]
+		#frame = frame[0:height,0:int(width*0.5)]
 		# Resize and Add Noise
 		if resize == True:
 			frame = imutils.resize(frame,width = resize_width, height= resize_height)
@@ -145,7 +145,7 @@ def main():
 
 				frameHeight = frame.shape[0]
 				frameWidth = frame.shape[1]
-				coordinatePublisher.publish(str(mean_x) +","+ str(mean_y) + "," + str(frameWidth) + "," + str(frameHeight))
+				coordinatePublisher.publish(str(mean_x) +","+ str(mean_y) + "," + str(frameWidth) + "," + str(frameHeight)+ "," + str(radius))
 		else:
 			coordinatePublisher.publish("-")
 				

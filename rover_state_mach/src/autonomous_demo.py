@@ -20,10 +20,10 @@ def auto_demo():
     pub1 = rospy.Publisher('/gps/fix', NavSatFix, queue_size =10)
     pub2 = rospy.Publisher('/imu/data', Imu ,queue_size = 10)
     pub3 = rospy.Publisher('/odometry/wheel', Odometry, queue_size = 10)
-    pub4 = rospy.Publisher('/rover_gps/waypoint', NavSatFix, queue_size = 10)
+    pub4 = rospy.Publisher('/rover_gps/waypoint', String, queue_size = 10)
 
     #Autonomous movement
-    pub5 = rospy.Publisher('/move_base/status',GoalStatusArray,queue_size=10)
+    #pub5 = rospy.Publisher('/move_base/status',GoalStatusArray,queue_size=10)
     
     #Image Detect
     pub6 = rospy.Publisher('/image_detect_topic',String,queue_size=10)
@@ -55,9 +55,7 @@ def auto_demo():
         encoderMsg = Odometry()
         encoderMsg.pose.pose.position.x = 5
         encoderMsg.pose.pose.position.y = 5
-        wpMsg = NavSatFix()
-        wpMsg.latitude = 5
-        wpMsg.longitude = 5
+        
         wpStatusMsgLow = GoalStatus()
         wpStatusMsgLow.status = 3
         wpStatusArray =[]
@@ -87,13 +85,14 @@ def auto_demo():
             pub3.publish(encoderMsg)
             
         elif userInput == "3":  # Got Waypoint
-            pub4.publish(wpMsg)
+            pub4.publish("1")
 
         #elif userInput == "4":  #Did not get any waypoint
             #pub4.publish("0")
 
         elif userInput == "5":  #Reached to way point
-            pub5.publish(wpStatusMsg)
+            #pub5.publish(wpStatusMsg)
+            pub4.publish("2")
             
 
         #elif userInput == "6":  #Did not reached to way point

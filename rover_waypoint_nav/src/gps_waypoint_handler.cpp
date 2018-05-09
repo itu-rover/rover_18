@@ -63,13 +63,16 @@ public:
        		ROS_INFO("Waiting for the move_base action server to come up");
    		}
    		roverState.state = rover_state_mach::RoverStateMsg::INITIALISE;
+      std_msgs::String sm_info;
+      sm_info.data = "0";
+      sm_pub.publish(sm_info);
   	}
 
 	//Called once when the goal completes
 	void doneCb(const actionlib::SimpleClientGoalState& state,
 				const move_base_msgs::MoveBaseResultConstPtr& result)
 	{
-    	ROS_INFO("Finished in state ");
+    	ROS_INFO("Move base has reached its goal. ");
     	//ROS_INFO("Answer: %i", result->sequence.back());
     	//ros::shutdown();
     }
@@ -83,14 +86,14 @@ public:
   	// Called every time feedback is received for the goal
   	void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback)
   	{
-  		ROS_INFO("Got Feedback of move base ");
+  		//ROS_INFO("Got Feedback of move base ");
   		//ROS_INFO("Got Feedback of length %lu", feedback->sequence.size());
   		//geometry_msgs/PoseStamped base_position
   	}
 
   	void stateMachineCB(rover_state_mach::RoverStateMsg rvrStt)
   	{
-  		ROS_INFO("Got Info from State Machine ");
+  		//ROS_INFO("Got Info from State Machine ");
   		roverState.state = rvrStt.state;
   	}
 
@@ -118,7 +121,7 @@ public:
 
   	void currentPointCB(sensor_msgs::NavSatFix currentPoint )
   	{
-  		ROS_INFO("Got Info about current point ");
+  		//ROS_INFO("Got Info about current point ");
   		longC=currentPoint.longitude;
   		latiC=currentPoint.latitude;
   	}
@@ -267,7 +270,7 @@ public:
         		}
         		else
         		{
-        			ROS_INFO("Rover is ready for GPS waypoint navigation but there is no target point.\nSend target position.");
+        			ROS_INFO("Rover is ready for GPS waypoint navigation but there is no target point.\nSend target point.");
         		}	
         	}
 

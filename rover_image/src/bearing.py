@@ -38,10 +38,10 @@ def calculateBearing(pxWidth, pxHeight, videoWidth, videoHeight):
         anglePerPixel = camAngleOfView/videoWidth
         diff = center - pxWidth
         if diff > 5:
-            print("-" + str(abs(diff*anglePerPixel)))            
+            print("+" + str(abs(diff*anglePerPixel)))            
             calculatedBearing = "+"+str(abs(diff * anglePerPixel))
         elif diff < -5:
-            print("+" + str(abs(diff*anglePerPixel)))
+            print("-" + str(abs(diff*anglePerPixel)))
             calculatedBearing = "-"+str(abs(diff * anglePerPixel))
         else:
             print("Duz")
