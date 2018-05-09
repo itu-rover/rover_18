@@ -48,6 +48,7 @@ def anim():
     p = nav.position
     s = nav.vector
 
+
     arm.update_destination_point(p, s)
     lines = to_lines(arm.joint_points)
     # g.redraw_point(arm.joint_points[1])
