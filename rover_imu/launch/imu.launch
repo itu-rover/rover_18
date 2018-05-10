@@ -6,14 +6,13 @@
     <rosparam file="$(arg bosch_config_file)" command="load"/>
     <remap from="/imu/data" to="/imu/data"/>
     <remap from="/imu/raw" to="/imu/raw"/>
-    <remap from="/imu/temp" to="/imu_bosch/temp"/>
-    <remap from="/imu/mag" to="/imu_bosch/mag"/>
+    <remap from="/imu/temp" to="/imu/temp"/>
+    <remap from="/imu/mag" to="/imu/mag"/>
   </node>
 
-	<!-- IMU Bosh transformation publisher -->
-	<!--node name="base_link_to_imu_bosch"
-			pkg="tf" type="static_transform_publisher" 
-			args="0.0 0.0 0.0 0.0 0.0 0.0 base_link imu_bosch_link 200" /-->
+  <!-- IMU Bosh transformation publisher -->
+  <!--node name="base_link_to_imu_bosch" pkg="tf" type="static_transform_publisher" args="0.0 0.0 0.0 0.0 0.0 0.0 base_link 
+imu_bosch_link 200" /-->
 </launch>
 
 

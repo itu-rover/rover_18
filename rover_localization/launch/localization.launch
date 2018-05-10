@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <group ns="outdoor_waypoint_nav"> 
+  <group ns="itu_rover"> 
   <rosparam command="load" file="$(find rover_localization)/params/ekf_params.yaml" />
   <rosparam command="load" file="$(find rover_localization)/params/navsat_params.yaml" />
  
