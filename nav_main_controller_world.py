@@ -6,14 +6,15 @@ from navigation import Navigation
 
 global_speed_gain = 1.0
 
-loop_rate = 100
+loop_rate = 10
 p = [65, 0, 40]
 s = [1, 1, 0]
 nav = Navigation(p, s)
 ps4 = PS4Controller(0x054C, 0x09CC)
 arm = RoverArm([63, 47, 21])
 arm.update_destination_point(p, s)
-
+arm.ros_begin()
+arm.send_serial()
 
 def anim():
     global p, s, arm, nav, global_speed_gain
@@ -38,9 +39,8 @@ def anim():
     s = nav.vector
 
     arm.update_destination_point(p, s)
-    # arm.send_serial()
+    arm.send_serial()
 
-
-while True:
+while not arm.my_rospy.is_shutdown():
     anim()
     sleep(1.0 / loop_rate)
