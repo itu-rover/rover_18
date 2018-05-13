@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 #This is the Modelling Code  for ITU Rover Team
 ##This code takes pictures with pressing space bar and mark the gps data to their exif's.
-###This code is the primary code for modelling and scaling for science task that will be done on another operating system.
-
-
 
 import numpy as np
 import imutils
@@ -12,12 +9,23 @@ from std_msgs.msg import String
 from sensor_msgs.msg import NavSatFix
 
 def main():
+	currentMode = "Modelling"
 
 	while not rospy.is_shutdown():
-		print("1: Take Picture \n ")
+		print("Enter: Take Picture \n ")
+		print("0: Change mode, current Mode : " + str(currentMode))
 		userInput = raw_input()
 		if userInput == "":
-			controlPub.publish("1")
+			if currentMode == "Modelling":
+				controlPub.publish("1")
+			elif currentMode == "Panaromic":
+				controlPub.publish("2")
+		elif userInput == "0":
+			controlPub.publish("2")
+			if currentMode == "Modelling":
+				currentMode = "Panaromic"
+			elif currentMode == "Panaromic":
+				currentMode = "Modelling"
 
 
 if __name__ == '__main__':

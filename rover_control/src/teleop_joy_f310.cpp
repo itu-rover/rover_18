@@ -50,8 +50,8 @@ void teleop_rover::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   geometry_msgs::Twist twist;
   if (joy->buttons[kill_])
   {    
-    twist.angular.z = joy->axes[angular_]*-1; //TODO: scale ekle
-    twist.linear.x = joy->axes[linear_]*1;
+    twist.angular.z = joy->axes[angular_]*-0.3; //TODO: scale ekle
+    twist.linear.x = joy->axes[linear_]*0.3;
     vel_pub_.publish(twist);
     sent_disable_msg = false;
   }

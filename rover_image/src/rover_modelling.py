@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #This is the Modelling Code  for ITU Rover Team
 ##This code takes pictures with pressing space bar and mark the gps data to their exif's.
-###This code is the primary code for modelling and scaling for science task that will be done on another operating system.
 
 
 
@@ -23,6 +22,7 @@ from sensor_msgs.msg import NavSatFix
 
 number = 0
 folder_opened = False
+folder_2_opened = False
 currentGps = [None]*2
 attribute = rospy.get_param('/RoverModelling/attribute',True)
 remote = rospy.get_param('/RoverModelling/remote', True)
@@ -116,10 +116,12 @@ def controlCallback(data):
 def main():
 	global number
 	global folder_opened
+	global folder_2_opened
 	global currentGps
 	global attribute, remote
 	global remoteControl
-	camera = cv2.VideoCapture(1)
+
+	camera = cv2.VideoCapture(0)
 	path_elementary= '/home/cigi/rover_ws/src/rover_18/rover_image/images/'
 	fps = 25.0
 
@@ -174,6 +176,28 @@ def main():
 					else:
 						print("currentGps is None")
 					remoteControl = ""
+
+				if remoteControl == "2":
+					path_formed_2 = path_formed + '/panaromic/'
+					if folder_2_opened == False:		
+						os.makedirs(path_formed_2)
+						folder_2_opened = True
+
+					cv2.imwrite(path_formed_2+ '/'+ str(number)+'.jpg',frame)
+					f = open(path_formed+'/cigi.txt',"a")
+					f.write(str(number)+str(currentGps[0])+","+str(currentGps[1]) + "/n")
+					number += 1
+					f.close()
+
+					if(currentGps[0] != None and currentGps[1] != None):
+						try:
+							set_gps_location(path_formed+'/'+str(number-1)+'.jpg',currentGps[0],currentGps[1])
+						except:
+							set_gps_location(path_formed_2+'/'+str(number-1)+'.jpg',currentGps[0],currentGps[1])
+
+					else:
+						print("currentGps is None") 
+
 
 
 	

@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
 	try:
 		rospy.init_node('get_image')
-		rospy.Subscriber('/zed/left/image_raw_color', Image, imageCallBack)
+		rospy.Subscriber('/image_elevation', Image, imageCallBack)
 		while not rospy.is_shutdown():
 			main()
 	except rospy.ROSInterruptException:

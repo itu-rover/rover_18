@@ -20,7 +20,7 @@ def auto_demo():
     pub1 = rospy.Publisher('/gps/fix', NavSatFix, queue_size =10)
     pub2 = rospy.Publisher('/imu/data', Imu ,queue_size = 10)
     pub3 = rospy.Publisher('/odometry/wheel', Odometry, queue_size = 10)
-    pub4 = rospy.Publisher('/rover_gps/waypoint', String, queue_size = 10)
+    pub4 = rospy.Publisher('/gps_waypoint_handler/status', String, queue_size = 10)
 
     #Autonomous movement
     #pub5 = rospy.Publisher('/move_base/status',GoalStatusArray,queue_size=10)

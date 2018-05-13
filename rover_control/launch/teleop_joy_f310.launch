@@ -4,7 +4,7 @@
   <node respawn="true" pkg="joy"
         type="joy_node" name="joy_node" >
     <param name="dev" type="string" value="/dev/input/js0" />
-    <param name="deadzone" value="0.12" />
+    <param name="deadzone" value="0.8" />
   </node>
 
  <!-- Axes -->
@@ -12,7 +12,7 @@
   <param name="axis_angular" value="0" type="int"/>
   <param name="kill" value="4" type="int"/>
   <param name="turbo" value="5" type="int"/>
-  <param name="turbo_scale" value="3.0" type="double"/>
+  <param name="turbo_scale" value="0.4" type="double"/>
   <node pkg="rover_control" type="teleop_joy_f310" name="teleop_joy_f310" output="screen"/>
 
   <node pkg="rover_serial" type="rover_cmd_sub.py" name="rover_cmd_sub" output="screen"/>
