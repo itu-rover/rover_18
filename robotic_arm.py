@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+import rospy
+from std_msgs.msg import String
+# ROS
 import math
 import numpy as np
 from random import randint
@@ -19,7 +23,6 @@ class RoverArm(object):
         self.vectors = [vz, vz, vz]
         self.joint_angles = [0, 0, 0, 0, 0]
         self.joint_points = [vz, vz, vz]
-
         # self.update_destination_point(initial[0], initial[1])
 
     def check_limits(self, _joint_angles):
@@ -207,3 +210,17 @@ class RoverArm(object):
         print "Joint Angles[base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]: " + str(self.joint_angles)
         print "Segment Vectors: " + str(self.vectors)
         print "Joint Points: " + str(self.joint_points)
+
+
+    def send_serial(self):
+        mssg = self.return_model_for_low_level()
+        self.joint_state_publisher.publish(mssg)
+
+
+    def ros_begin(self):
+        self.my_rospy = rospy
+        self.joint_state_publisher = self.my_rospy.Publisher("/robotic_arm/joint_states",String,queue_size =10)
+        try:
+            self.my_rospy.init_node('rover_atan', anonymous=False)
+        except self.my_rospy.ROSInterruptException:
+            self.my_rospy.loginfo("Exception thrown")
