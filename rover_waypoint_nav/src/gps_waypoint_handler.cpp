@@ -280,7 +280,7 @@ public:
             {
               if (calculateError()<150) // distance to goal less than 150 m
               { 
-                while(calculateError() >=1) // try to reach goal
+                while(calculateError() >=5) // try to reach goal
                 {  
                   moveBaseGoal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
 
@@ -295,7 +295,7 @@ public:
                   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
                   {
                       ROS_INFO("Rover is closer than 150m to goal with error: %f m", calculateError()); 
-                      if (calculateError() <=1)
+                      if (calculateError() <=5)
                       {
                         ROS_INFO("Rover succeded!");
                         targetFlag = false;
@@ -315,7 +315,7 @@ public:
               else //if error bigger than 150 m
               {
                 createTempoaryPoint(latiG, longG);
-                while(calculateTemporaryError()>=1)
+                while(calculateTemporaryError()>=5)
                 {
                   moveBaseGoal = buildGoal(map_point, map_next); //initiate a move_base_msg called goal
 
@@ -328,7 +328,7 @@ public:
                   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
                   {
                     ROS_INFO("Rover has reached to temporary goal with error: %f m", calculateTemporaryError()); 
-                    if (calculateTemporaryError() <=1)
+                    if (calculateTemporaryError() <=5)
                     {
                       ROS_INFO("Rover has reached to temporary goal calculating again!");
                       break; //rover reached to actual goal SUCCES!

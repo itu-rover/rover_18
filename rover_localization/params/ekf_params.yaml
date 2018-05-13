@@ -7,7 +7,7 @@ ekf_se_odom: # Used only for broadcasting odom to base_link transforms
   transform_time_offset: 0.0
   transform_timeout: 0.0
   print_diagnostics: true
-  debug: false
+  debug: true
 
   map_frame: map
   odom_frame: odom

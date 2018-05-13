@@ -3,6 +3,6 @@ port: /dev/ttyUSB0
 # Tf frame id
 frame_id: imu_link
 # Data reading frequency
-frequency: 100
+frequency: 50
 # Sensor operation mode --> modes could be found in sensor datasheet
 operation_mode: 0x12

@@ -128,6 +128,9 @@ include_directories(
 )
 add_executable(teleop_joy src/teleop_joy.cpp)
 target_link_libraries(teleop_joy ${catkin_LIBRARIES})
+
+add_executable(teleop_joy_f310 src/teleop_joy_f310.cpp)
+target_link_libraries(teleop_joy_f310 ${catkin_LIBRARIES})
  
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -188,11 +191,11 @@ target_link_libraries(teleop_joy ${catkin_LIBRARIES})
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+ install(FILES
+   teleop_joy_f310.launch
+   # myfile2
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+ )
 
 #############
 ## Testing ##
