@@ -74,8 +74,8 @@ class Localization(object):
 			self.current_time = rospy.Time.now()
 			self.dt = (self.current_time - self.last_time).to_sec()
 
-			self.left_wheel=((self.front_left+self.front_right)/2)*0.3611# front left front right
-			self.right_wheel=((self.back_left+self.back_right)/2)*0.3611 #pi*0.115m 
+			self.left_wheel=((self.front_left+self.front_right)/2)*0.00601# front left front right
+			self.right_wheel=((self.back_left+self.back_right)/2)*0.00601 #pi*0.115m 
 
 			self.vx =  ((self.right_wheel+self.left_wheel)/2) 
 			self.vth  = ((self.right_wheel-self.left_wheel)/self.dist_btw_wheels)
