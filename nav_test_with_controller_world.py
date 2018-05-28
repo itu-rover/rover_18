@@ -3,6 +3,7 @@ from navigation import Navigation
 from grapher import Grapher
 from ps4controller.ps4 import PS4Controller
 from vectorial_calculations import cross
+import time
 lines = []
 global_speed_gain = 1.0
 loop_rate = 1.0
@@ -16,13 +17,13 @@ def to_lines(points):
     return v
 
 
-p = [65, 0, 40]
-s = [1, 1, 0]
+p = [85, 0, 40]
+s = [1, 0, 0]
 nav = Navigation(p, s)
 ps4 = PS4Controller(0x054C, 0x09CC)
 arm = RoverArm([63, 47, 21])
 arm.update_destination_point(p, s)
-
+# arm.establish_serial_connection()
 
 
 
@@ -30,7 +31,7 @@ def anim():
     global p, s, arm, nav, global_speed_gain, loop_rate
     ps4.update()
     up_down_vel = (ps4.axis_raw[5] - ps4.axis_raw[4]) / 255.0
-    rl_vel = (ps4.axis_raw[0] - 128) / 128.0
+    rl_vel = -(ps4.axis_raw[0] - 128) / 128.0
     zoom_vel = ((255 - ps4.axis_raw[1]) - 128) / 128.0
 
     yaw_vel = (ps4.axis_raw[2] - 128) / 128.0
@@ -47,18 +48,22 @@ def anim():
     p[1] += rl_vel * (1.0 / loop_rate) * global_speed_gain
     p[0] += zoom_vel * (1.0 / loop_rate) * global_speed_gain
     s = nav.vector
-
-
+    print arm.return_model_for_low_level()
+    print arm.joint_angles
     arm.update_destination_point(p, s)
+    # arm.serial_write()
     lines = to_lines(arm.joint_points)
     # g.redraw_point(arm.joint_points[1])
-    g.redraw(lines)
+    # g.redraw(lines)
 
+while True:
+    anim()
+    time.sleep(0.1)
 
-g = Grapher(lines)
-t_point1 = [50, 10, 40]
-t_point2 = [70, 5, 30]
-g.redraw_point(t_point1)
-g.redraw_point(t_point2)
-g.redraw(lines)
-g.show(anim)
+# g = Grapher(lines)
+# t_point1 = [50, 10, 40]
+# t_point2 = [70, 5, 30]
+# g.redraw_point(t_point1)
+# g.redraw_point(t_point2)
+# g.redraw(lines)
+# g.show(anim)

@@ -13,8 +13,8 @@ nav = Navigation(p, s)
 ps4 = PS4Controller(0x054C, 0x09CC)
 arm = RoverArm([63, 47, 21])
 arm.update_destination_point(p, s)
-arm.ros_begin()
-arm.send_serial()
+# arm.ros_begin()
+# arm.send_serial()
 
 def anim():
     global p, s, arm, nav, global_speed_gain
@@ -37,10 +37,15 @@ def anim():
     p[0] += zoom_vel * (1.0 / loop_rate) * global_speed_gain
 
     s = nav.vector
-
+    # print arm.joint_angles
     arm.update_destination_point(p, s)
-    arm.send_serial()
+    print arm.return_model_for_low_level()
+    # arm.send_serial()
 
-while not arm.my_rospy.is_shutdown():
+while True:
     anim()
     sleep(1.0 / loop_rate)
+
+# while not arm.my_rospy.is_shutdown():
+    # anim()
+    # sleep(1.0 / loop_rate)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import rospy
-from std_msgs.msg import String
+# import rospy
+# from std_msgs.msg import String
 # ROS
 import math
 import numpy as np
@@ -14,7 +14,7 @@ vz = [0, 0, 0]
 class RoverArm(object):
     def __init__(self, lengths, initial=[[40, 0, 20], [1, 0, 0]]):
         self.Lengths = lengths
-        self.limits = [[-50, 50], [10, 110], [10, 160], [0, 360], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
+        self.limits = [[-180, 180], [15, 83], [55, 104], [0, 360], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
         self.joint_names = ["base_yaw", "base_pitch", "secondary_axis", "gripper_pitch", "gripper_rotation"]
         self.last_point = [0, 0, 0]
         self.degrees_to_mm = False
@@ -94,7 +94,7 @@ class RoverArm(object):
         if self.degrees_to_mm:
             self.joint_angles[2] = (get_length_from_cos(7.5, 32.7, self.joint_angles[2]) - self.actuator_lengths[1]) * 10
             self.joint_angles[1] = (get_length_from_cos(8.124, 31.8, self.joint_angles[1] + 29.74 - 8.44) - self.actuator_lengths[0]) * 10
-
+            # 80.62
 
         # self.print_cool_words()
         # Calculation of the vectorial speed of joints
@@ -163,7 +163,7 @@ class RoverArm(object):
         switch_position_in_array(self.joint_angles, 3, 4)
         for i in range(0, 5):
             # Axis Number
-            msg += str(i + 1)
+            # msg += str(i + 1)
 
             # Axis angle sign 1 for + 0 for -
             if self.joint_angles[i] >= 0:
@@ -172,11 +172,14 @@ class RoverArm(object):
                 msg += "0"
 
             # 3 Bit fixed size message
-            msg += to_fixed_size(abs(self.joint_angles[i]), 3)
+            value = self.joint_angles[i]
+            if (i == 2):
+                value = 180 - value
+            msg += to_fixed_size(abs(value), 3)
         switch_position_in_array(self.joint_angles, 3, 4)
 
         # NOTE: 6th axis calculations not completed so adding static value 0
-        msg += "60000"
+        msg += "0000"
 
         # Stop Bit
         msg += "F"
@@ -185,22 +188,22 @@ class RoverArm(object):
     def establish_serial_connection(self):
         self.ser = serial.Serial(
             # 0,
-        	port='/dev/cu.usbmodem1431',
-        	baudrate=9600,
-            timeout=1
+        	port='/dev/cu.usbserial-A978MU3D',
+        	baudrate=115200,
+            timeout=0.3
         )
         self.ser.close()
         self.ser.open()
 
 
     def serial_write(self):
-        string = self.return_model_for_low_level()
-        string = "S000F\n"
+        msg = self.return_model_for_low_level() + "\r\n"
+        print msg
+        # msg = "HELLOWORLD!\r\n"
         # if self.ser.isOpen():
         #self.ser.write(string)
-        for i in range(len(string)):
-            self.ser.write(string[i])
-            self.ser.flush()
+        self.ser.write(msg.encode())
+        self.ser.flush()
 
     def print_info(self):
         print "Destination Point: " + str(self.destination_point)
