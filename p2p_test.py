@@ -1,5 +1,30 @@
+from robotic_arm import RoverArm
 from grapher import Grapher
 from vectorial_calculations import subtract, length, make_unit, scalar_of_vector, sum_vector
+from time import sleep
+
+lines = []
+base_lines = []
+
+def to_lines(points):
+    v = []
+    for i in range(0, len(points)):
+        if i == 0:
+            v.append([[0,0,0], points[i]])
+        else:
+            v.append([points[i-1], points[i]])
+    return v
+
+p = [100,0,30]
+s = [1, 0, 0]
+tp = [100,0,30]
+ts = [1, 0, 0]
+
+arm = RoverArm([63, 47, 21])
+arm.update_destination_point(tp, ts)
+last_pos = to_lines(arm.joint_points)
+arm.update_destination_point(p, s)
+first_pos = to_lines(arm.joint_points)
 
 def generate_curve(current_position, current_direction, target_position, target_direction, iteration_factor, k1, k2, minimum_points=3):
     p1 = sum_vector(scalar_of_vector(make_unit(current_direction), -k1), current_position)
@@ -41,3 +66,44 @@ def generate_path(current_position, target_position, step_dist, minimum_points=3
         v = sum_vector(v, current_position)
         points_on_path.append(v)
     return points_on_path
+
+safety_const = 15
+safe_approach_point = sum_vector(tp, scalar_of_vector(make_unit(ts), -safety_const))
+points, dirs, avg_step = generate_curve(p, s, safe_approach_point, ts, 20, 0.5, 0.5)
+
+_points = generate_path(safe_approach_point, tp, avg_step)
+for i in _points:
+    points.append(i)
+
+print "Current Position: {0}, Target Position: {1}, Approaching the target position from: {2}".format(p, tp, safe_approach_point)
+print "Current Direction: {0}, Taget Direction: {1}".format(s, ts)
+print "Average Step Distance: {0}".format(avg_step)
+print "Total Points on Path: {0}".format(len(points))
+
+count = 0
+def anim():
+    global p, s, arm, count, points, dirs, first_pos, base_lines, last_pos
+    # Main Code:
+    if count < len(points):
+        c = count
+        if count >= len(dirs):
+            c = len(dirs) - 1
+        arm.update_destination_point(points[count], dirs[c])
+        g.redraw_point(points[count])
+        count += 1
+    else:
+        count = 0
+        g.clear_points()
+
+    lines = to_lines(arm.joint_points)
+    base_lines = first_pos
+    for line in last_pos:
+        base_lines.append(line)
+    g.redraw(lines)
+    g.redraw_base(base_lines)
+
+    # sleep(0.01)
+
+g = Grapher(lines)
+g.redraw(lines)
+g.show(anim)

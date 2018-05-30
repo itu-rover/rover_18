@@ -8,13 +8,15 @@ from random import randint
 import serial
 from vectorial_calculations import *
 from navigation import Navigation
+from fixed_destinations import AdaptiveGripperClient
+import socket, errno
 vz = [0, 0, 0]
 
 
 class RoverArm(object):
     def __init__(self, lengths, initial=[[40, 0, 20], [1, 0, 0]]):
         self.Lengths = lengths
-        self.limits = [[-180, 180], [15, 83], [55, 104], [0, 360], [0, 360]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
+        self.limits = [[-180, 180], [15, 83], [55, 104], [1, 360], [-90, 90]] # [base_yaw, base_pitch, secondary_axis, gripper_pitch, gripper_rotation]
         self.joint_names = ["base_yaw", "base_pitch", "secondary_axis", "gripper_pitch", "gripper_rotation"]
         self.last_point = [0, 0, 0]
         self.degrees_to_mm = False
@@ -23,6 +25,9 @@ class RoverArm(object):
         self.vectors = [vz, vz, vz]
         self.joint_angles = [0, 0, 0, 0, 0]
         self.joint_points = [vz, vz, vz]
+        self.current_position = [0, 0, 0]
+        self.current_direction = [0, 0, 0]
+        self.serial_connected = False
         # self.update_destination_point(initial[0], initial[1])
 
     def check_limits(self, _joint_angles):
@@ -47,7 +52,17 @@ class RoverArm(object):
 
         print arr[selector]
 
+    def check_distance(self, p, v):
+        last_joint_vector = scalar_of_vector(v, self.Lengths[2])
+        destination_point = subtract(p, last_joint_vector)
+        if length(destination_point) >= self.Lengths[0] + self.Lengths[1]:
+            return False
+        return True
+
     def update_destination_point(self, point, vector):
+        if not self.check_distance(point, vector):
+            print "[ ERROR ] Destination is out of reach."
+            return (False, None)
         if not length(vector) == 1:
             vector = make_unit(vector)
         last_joint_vector = scalar_of_vector(vector, self.Lengths[2])
@@ -62,10 +77,19 @@ class RoverArm(object):
         first_pair_normal = cross(v2, vector)
         second_pair_normal = cross(v1, v2)
         add_axis = 180 - math.degrees(angle(first_pair_normal, second_pair_normal))
-
+        add_axis = add_axis % 180
         # Check limits
         if not self.check_limits([geo[0], geo[1], geo[2], last_angle, add_axis]):
-            return
+            _v1 = scalar_of_vector(make_unit(v1), self.Lengths[0])
+            _v2 = scalar_of_vector(make_unit(v2), self.Lengths[1])
+            _v3 = scalar_of_vector(vector, self.Lengths[2])
+            _p1 = _v1
+            _p2 = sum_vector(_v1, _v2)
+            _p3 = sum_vector(_p2, _v3)
+            return (False, [_p1, _p2, _p3])
+
+        self.current_position = point
+        self.current_direction = vector
 
         v1 = scalar_of_vector(make_unit(v1), self.Lengths[0])
         v2 = scalar_of_vector(make_unit(v2), self.Lengths[1])
@@ -128,7 +152,7 @@ class RoverArm(object):
         self.velocity = [velocity_1, velocity_2, velocity_3, velocity_4, velocity_5]
 
         self.last_point = point
-
+        return (True, None)
 
     def foward_model(self, angles):
         for i in range(1, len(angles) - 1):
@@ -173,37 +197,78 @@ class RoverArm(object):
 
             # 3 Bit fixed size message
             value = self.joint_angles[i]
-            if (i == 2):
+            if i == 2:
                 value = 180 - value
             msg += to_fixed_size(abs(value), 3)
         switch_position_in_array(self.joint_angles, 3, 4)
 
         # NOTE: 6th axis calculations not completed so adding static value 0
         msg += "0000"
-
+        print "[ WARNING ] 6th axis is set to 0."
         # Stop Bit
         msg += "F"
         return msg
 
-    def establish_serial_connection(self):
+    def establish_serial_connection(self, portname='/dev/cu.usbserial-A9S7BXXD', baud=115200, _timeout=0.3):
         self.ser = serial.Serial(
             # 0,
-        	port='/dev/cu.usbserial-A978MU3D',
-        	baudrate=115200,
-            timeout=0.3
+        	port=portname,
+        	baudrate=baud,
+            timeout=_timeout
         )
-        self.ser.close()
-        self.ser.open()
+        try:
+            self.ser.close()
+            self.ser.open()
+        except serial.SerialException:
+            print "[ ERROR ] Serial port opening failed. No such serial port available, aborting!"
+            self.serial_connected = False
+            return
+        self.serial_connected = True
 
+    def establish_tcp(self, _timeout=1000, _host="0.0.0.0", _port=9090):
+        # self.loop_rate = 1000
+        try:
+            self.host = _host
+            self.port = _port
+
+            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client.settimeout(_timeout)
+            self.client.connect((self.host, self.port))
+        except socket.error, e:
+            print "[ ERROR ] Socket error. -> ", e
+
+    def tcp_write(self):
+        data = self.return_model_for_low_level()
+        print data
+        try:
+            self.client.send(data + "\n")
+        except socket.error, e:
+            print "[ ERROR ] Socket error. -> ", e
+            self.establish_tcp(5)
+        except IOError, e:
+            if e.errno == errno.EPIPE:
+                print "[ ERROR ] Pipe error. -> ", e
+                # EPIPE error
+            else:
+                print "[ ERROR ] Unknown Error. -> ", e
+                # Other error
+
+    def terminate_tcp(self):
+        self.client.close()
 
     def serial_write(self):
         msg = self.return_model_for_low_level() + "\r\n"
-        print msg
         # msg = "HELLOWORLD!\r\n"
         # if self.ser.isOpen():
         #self.ser.write(string)
-        self.ser.write(msg.encode())
-        self.ser.flush()
+        if self.serial_connected:
+            try:
+                self.ser.write(msg.encode())
+                self.ser.flush()
+            except serial.SerialException:
+                print "[ ERROR ] Serial writing failed, aborting!"
+        else:
+            print "[ ERROR ] Serial port closed. Establish serial connection first."
 
     def print_info(self):
         print "Destination Point: " + str(self.destination_point)

@@ -72,3 +72,4 @@ class Grapher():
         plt.autoscale(False)
         plt.show()
         Axes3D.plot()
+        plt.pause(0.0001)
